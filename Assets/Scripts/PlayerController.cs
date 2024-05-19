@@ -13,11 +13,11 @@ public class PlayerController : MonoBehaviour
     public InputAction playerControls;
     public Camera cam;
     
-    Vector2 _velocity = Vector2.zero;
-    Vector2 _lastMovingDirection = Vector2.zero;
-    float _rotationY; 
-    Vector2 _screenZeroCoordsInWorld;
-    Vector2 _screenMaxCoordsInWorld;
+    private Vector2 _velocity = Vector2.zero;
+    private Vector2 _lastMovingDirection = Vector2.zero;
+    private float _rotationY; 
+    private Vector2 _screenZeroCoordsInWorld;
+    private Vector2 _screenMaxCoordsInWorld;
     
     SphereCollider _collider;
 
@@ -116,6 +116,7 @@ public class PlayerController : MonoBehaviour
             transform.position = new Vector3(currentPosition.x, currentPosition.y, _screenMaxCoordsInWorld.y);
         }
     }
+    
     private void OnCollisionEnter(Collision other)
     {
         
