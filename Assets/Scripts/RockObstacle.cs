@@ -32,13 +32,13 @@ public class RockObstacle : Obstacle
         switch (_sizeType)
         {
             case SizeType.Big:
-                transform.localScale = new Vector3(10, 10, 10);
+                gameObject.transform.localScale = new Vector3(5, 5, 5);
                 break;
             case SizeType.Medium:
-                transform.localScale = new Vector3(5, 5, 5);
+                gameObject.transform.localScale = new Vector3(3, 3, 3);
                 break;
             case SizeType.Small:
-                transform.localScale = new Vector3(1, 1, 1);
+                gameObject.transform.localScale = new Vector3(1, 1, 1);
                 break;
         }
     }
@@ -52,7 +52,9 @@ public class RockObstacle : Obstacle
             isNotOnScreen = false;
         } else if (isOutOfBound && !isNotOnScreen)
         {
+            ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
             Destroy(this.gameObject);
+            spawner.DespawnRock();
         }
     }
 
@@ -92,13 +94,12 @@ public class RockObstacle : Obstacle
 
     private void Split()
     {
+        ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
         if (_clustersCount > 0)
         {
-            ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
-
             for (int i = 0; i <  _clustersCount; i++)
             {
-                double facingAngle =((Random.Range(0, 40) + transform.rotation.eulerAngles.y) * Math.PI) / 180;
+                double facingAngle =((Random.Range(-60, 60) + transform.rotation.eulerAngles.y) * Math.PI) / 180;
                 Vector2 facingVector = new Vector2(
                     (float)Math.Cos(facingAngle),
                     -(float)Math.Sin(facingAngle));
@@ -109,8 +110,8 @@ public class RockObstacle : Obstacle
                 
                 spawner.SpawnRock(childVelocity, childSizeType, this);
             }
-            spawner.DespawnRock();
         }
+        spawner.DespawnRock();
         Destroy(this.gameObject);
     }
     

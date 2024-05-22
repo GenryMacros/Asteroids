@@ -7,6 +7,8 @@ public class ObstaclesSpawner : MonoBehaviour
     public Camera cam;
     public RockObstacle rockPrefab;
     
+    public float spawnTimeout = 1.0f;
+    public float currentTime = 0.0f;
     public int maxRocksOnScreen = 5;
     public int maxAliensOnScreen = 1;
     public float maxRocksSpeed = 1;
@@ -23,7 +25,12 @@ public class ObstaclesSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        currentTime += Time.deltaTime;
+        if (currentTime >= spawnTimeout)
+        {
+            Spawn();
+            currentTime = 0;
+        }
     }
 
     private void Spawn()
@@ -41,11 +48,11 @@ public class ObstaclesSpawner : MonoBehaviour
             
             Vector2 direction = new Vector2(
                 (float)Math.Cos(rockRotationRadians),
-                -(float)Math.Sin(rockRotationRadians));
-            Debug.Log(rockPosition);
-            rockPosition += -direction * (rockPosition + new Vector2(0, 0));
+                -(float)Math.Sin(rockRotationRadians)).normalized;
             
-            Debug.Log(cam.ScreenToWorldPoint(rockPosition));
+            
+            rockPosition += -direction * (new Vector2(Screen.width, Screen.height));
+            
             Vector3 velocity = direction * Random.Range(minRocksSpeed, maxRocksSpeed);
             
             RockObstacle rock = SpawnRock(velocity, (SizeType)rockType, rockPrefab);
