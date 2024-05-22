@@ -1,9 +1,11 @@
 using System;
+using System.Text;
 using UnityEngine.InputSystem;
 using UnityEngine;
 
 
 [RequireComponent(typeof(SphereCollider))]
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     public float maxSpeed = 10f;
@@ -20,7 +22,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 _screenMaxCoordsInWorld;
     
     SphereCollider _collider;
-
+    private Rigidbody _rigidbody;
+    
     private void OnEnable()
     {
         playerControls.Enable();
@@ -33,10 +36,14 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        _rigidbody = GetComponent<Rigidbody>();
+        _rigidbody.useGravity = false;
         _collider = GetComponent<SphereCollider>();
+        _collider.isTrigger = true;
         _screenZeroCoordsInWorld = cam.ScreenToWorldPoint(Vector2.zero);
         _screenZeroCoordsInWorld.y *= -1;
         _screenMaxCoordsInWorld = cam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
+        gameObject.tag = "player";
     }
     
     void Update()
@@ -117,7 +124,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
         
     }
