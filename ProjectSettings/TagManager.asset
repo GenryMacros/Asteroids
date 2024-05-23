@@ -8,6 +8,7 @@ TagManager:
   - alien
   - bullet
   - rock
+  - prefab
   layers:
   - Default
   - TransparentFX

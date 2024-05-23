@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using UnityEngine.InputSystem;
 using UnityEngine;
 
@@ -12,26 +11,35 @@ public class PlayerController : MonoBehaviour
     public float rotationSpeed = 100f;
     public float accelerationIncreaseRate = 2f;
     public float oppositePower = 0.01f;
-    public InputAction playerControls;
+    public float fireCooldown = 1.0f;
+    public float projectileSpeed = 30f;
     public Camera cam;
+    public BulletObstacle bulletPrefab;
+    public GameObject bulletSpawnPoint;
+    
+    public InputAction moveAction;
+    public InputAction shootAction;
     
     private Vector2 _velocity = Vector2.zero;
     private Vector2 _lastMovingDirection = Vector2.zero;
     private float _rotationY; 
     private Vector2 _screenZeroCoordsInWorld;
     private Vector2 _screenMaxCoordsInWorld;
+    private float _tilNextFire = 0.0f;
     
-    SphereCollider _collider;
+    private SphereCollider _collider;
     private Rigidbody _rigidbody;
     
     private void OnEnable()
     {
-        playerControls.Enable();
+        moveAction.Enable();
+        shootAction.Enable();
     }
 
     private void OnDisable()
     {
-        playerControls.Disable();
+        moveAction.Disable();
+        shootAction.Disable();
     }
 
     void Start()
@@ -48,10 +56,14 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
+        #region Inputs
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        float shootInput = shootAction.ReadValue<float>();
+        #endregion
+        
         #region Movement
-        Vector2 input = playerControls.ReadValue<Vector2>();
 
-        if (input.y != 0)
+        if (moveInput.y != 0)
         {
             double rotationY = (transform.rotation.eulerAngles.y * Math.PI) / 180;
 
@@ -87,9 +99,39 @@ public class PlayerController : MonoBehaviour
                 _lastMovingDirection = Vector2.zero;
             }
         }
-        _rotationY = input.x;
+        _rotationY = moveInput.x;
+        #endregion
+        
+        #region Cooldown
+
+        if (_tilNextFire < fireCooldown)
+        {
+            _tilNextFire += Time.deltaTime;
+        }
+
+        if (shootInput == 1.0f && _tilNextFire >= fireCooldown)
+        {
+            Fire();
+            _tilNextFire = 0;
+        }
         #endregion
 
+    }
+    
+    private void Fire()
+    {
+        BulletObstacle newBullet = Instantiate(bulletPrefab, transform.parent);
+        newBullet.transform.position = bulletSpawnPoint.transform.position;
+        
+        double rotationY = (transform.rotation.eulerAngles.y * Math.PI) / 180;
+        Vector2 rotationDir = new Vector2(
+            (float)Math.Cos(rotationY),
+            -(float)Math.Sin(rotationY));
+        Vector2 bulletVelocity = rotationDir * projectileSpeed;
+        
+        newBullet.Init(bulletVelocity, SizeType.Small);
+        newBullet.isPrefab = false;
+        newBullet.name += " player ";
     }
     
     void FixedUpdate()
@@ -126,6 +168,17 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.gameObject.CompareTag("alien") ||
+            other.gameObject.CompareTag("rock"))
+        {
+            // Something
+        }
+        else if (other.gameObject.CompareTag("bullet"))
+        {
+            if (!other.gameObject.name.StartsWith("player"))
+            {
+                // something
+            }
+        }
     }
 }

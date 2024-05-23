@@ -7,18 +7,17 @@ using Random = UnityEngine.Random;
 public class RockObstacle : Obstacle
 {
     private int _clustersCount = 2;
-    private bool isNotOnScreen = true;
     
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
         base.Init(initialVelocity, sizeType);
         SetClustersCount();
-        ConfigureScale();
         gameObject.tag = "rock";
     }
     
-    void Start()
+    public void Start()
     {
+        base.Start();
         if (!visuals)
         {
             visuals = Importer.LoadFromFile(Application.dataPath + "/Visuals/rock_placeholder.glb");
@@ -26,60 +25,14 @@ public class RockObstacle : Obstacle
             visuals.transform.parent = transform;
         }
     }
-
-    private void ConfigureScale()
-    {
-        switch (_sizeType)
-        {
-            case SizeType.Big:
-                gameObject.transform.localScale = new Vector3(5, 5, 5);
-                break;
-            case SizeType.Medium:
-                gameObject.transform.localScale = new Vector3(3, 3, 3);
-                break;
-            case SizeType.Small:
-                gameObject.transform.localScale = new Vector3(1, 1, 1);
-                break;
-        }
-    }
     
     void FixedUpdate()
     {
-        transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
-        bool isOutOfBound = IsOutOfBound();
-        if (!isOutOfBound)
+        if (!isPrefab)
         {
-            isNotOnScreen = false;
-        } else if (isOutOfBound && !isNotOnScreen)
-        {
-            ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
-            Destroy(this.gameObject);
-            spawner.DespawnRock();
+            transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
+            TeleportToScreenBorder();   
         }
-    }
-
-    private bool IsOutOfBound()
-    {
-        Vector3 currentPosition = transform.position;
-        Vector2 screenCoordinates = cam.WorldToScreenPoint(currentPosition);
-
-        if (screenCoordinates.x > Screen.width + Screen.width * 0.1)
-        {
-            return true;
-        } else if (screenCoordinates.x < 0 - Screen.width * 0.1)
-        {
-            return true;
-        }
-
-        if (screenCoordinates.y > Screen.height + Screen.height * 0.1)
-        {
-            return true;
-        } else if (screenCoordinates.y < 0 - Screen.height * 0.1)
-        {
-            return true;
-        }
-
-        return false;
     }
     
     private void OnTriggerEnter(Collider other)
@@ -108,7 +61,7 @@ public class RockObstacle : Obstacle
                 Vector2 childVelocity = facingVector * _velocity.magnitude * speedMultiplier;
                 SizeType childSizeType = _sizeType - 1 >= 0 ? _sizeType - 1 : SizeType.Small;
                 
-                spawner.SpawnRock(childVelocity, childSizeType, this);
+                spawner.InstantiateRock(childVelocity, childSizeType, this);
             }
         }
         spawner.DespawnRock();
