@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
@@ -9,6 +8,7 @@ public class UiManager : MonoBehaviour
     public static UiManager instance;
     
     public TMP_Text scoreText;
+    public Button newGameButton;
     public List<Image> lifeSprites;
     public int scoreRockWorth = 10;
     public int scoreAlienWorth = 20;
@@ -25,6 +25,7 @@ public class UiManager : MonoBehaviour
     {
         scoreText.text = score.ToString();
         nextLifeIndex = lifeSprites.Count - 1;
+        newGameButton.gameObject.SetActive(false);
     }
 
     public void IncreaseScore(int increment)
@@ -39,7 +40,21 @@ public class UiManager : MonoBehaviour
         {
             lifeSprites[nextLifeIndex].enabled = false;
             nextLifeIndex -= 1;
+            if (nextLifeIndex < 0)
+            {
+                SetupDeathScreen();
+            }
         }
+    }
+
+    public void RestartGame()
+    {
+        Reset();
+    }
+    
+    public void SetupDeathScreen()
+    {
+        newGameButton.gameObject.SetActive(true);
     }
     
     public void Reset()
@@ -49,6 +64,13 @@ public class UiManager : MonoBehaviour
         {
             sprite.enabled = true;
         }
+
+        score = 0;
         scoreText.text = score.ToString();
+        nextLifeIndex = lifeSprites.Count - 1;
+        newGameButton.gameObject.SetActive(false);
+        
+        PlayerController.instance.Reset();
+        ObstaclesSpawner.instance.Reset();
     }
 }

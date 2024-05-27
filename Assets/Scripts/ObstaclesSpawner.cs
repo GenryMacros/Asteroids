@@ -5,6 +5,8 @@ using Random = UnityEngine.Random;
 
 public class ObstaclesSpawner : MonoBehaviour
 {
+    public static ObstaclesSpawner instance;
+    
     public Camera cam;
     public RockObstacle rockPrefab;
     public AlienObstacle alienPrefab;
@@ -15,17 +17,22 @@ public class ObstaclesSpawner : MonoBehaviour
     public int maxAliensOnScreen = 1;
     public float maxRocksSpeed = 1;
     public float minRocksSpeed = 0.5f;
-    public float alienSpeed = 2.0f;
+    public float maxAlienSpeed = 2.0f;
+    public float minAlienSpeed = 2.0f;
     
     private int currentRocksOnScreen = 0;
     private int currentAliensOnScreen = 0;
+    
+    private void Awake()
+    {
+        instance = this;
+    }
     
     void Start()
     {
         Spawn();
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         currentTime += Time.deltaTime;
@@ -70,15 +77,14 @@ public class ObstaclesSpawner : MonoBehaviour
         position += -direction * (new Vector2(Screen.width, Screen.height));
         position = MakePositionOutOfBoudns(position, rockType);
         
-        float rockSpeed = Random.Range(minRocksSpeed, maxRocksSpeed);
-        Vector3 velocity = direction * rockSpeed;
+        float speed = Random.Range(minRocksSpeed, maxRocksSpeed);
+        Vector3 velocity = direction * speed;
             
-        RockObstacle rock = InstantiateRock(velocity, (SizeType)rockType, rockPrefab);
+        RockObstacle rock = InstantiateRock(velocity, (SizeType)rockType, rockPrefab, true);
         rock.transform.eulerAngles = new Vector3(0.0f, rotation, 0.0f);
         rock.transform.position = cam.ScreenToWorldPoint(position);
         rock.transform.position = new Vector3(rock.transform.position.x, 0, rock.transform.position.z);
-        rock.speed = rockSpeed;
-        rock.direction = direction;
+        rock.speed = speed;
     }
     
     private void SpawnAlien()
@@ -99,15 +105,16 @@ public class ObstaclesSpawner : MonoBehaviour
             
         position += -direction * (new Vector2(Screen.width, Screen.height));
         position = MakePositionOutOfBoudns(position, alienType);
-            
-        Vector3 velocity = direction * alienSpeed;
+        
+        float speed = Random.Range(minAlienSpeed, maxAlienSpeed);
+        Vector3 velocity = direction * speed;
             
         AlienObstacle alien = InstantiateAlien(velocity, (SizeType)alienType, alienPrefab);
         
         alien.transform.position = cam.ScreenToWorldPoint(position);
         alien.transform.position = new Vector3(alien.transform.position.x, 0, alien.transform.position.z);
-        alien.speed = alienSpeed;
-        alien.direction = direction;
+        alien.speed = speed;
+        alien.initialDirection = direction;
     }
 
     private Vector2 MakePositionOutOfBoudns(Vector2 position, int type)
@@ -158,13 +165,17 @@ public class ObstaclesSpawner : MonoBehaviour
         return index;
     }
     
-    public RockObstacle InstantiateRock(Vector2 initialVelocity, SizeType sizeType, RockObstacle prefab)
+    public RockObstacle InstantiateRock(Vector2 initialVelocity, SizeType sizeType, RockObstacle prefab, bool isOriginal)
     {
         RockObstacle childRock = Instantiate(prefab, transform, true);
         childRock.transform.position = prefab.transform.position;
         childRock.Init(initialVelocity, sizeType);
         childRock.isPrefab = false;
-        currentRocksOnScreen += 1;
+        childRock.isOriginalRock = isOriginal;
+        if (childRock.isOriginalRock)
+        {
+            currentRocksOnScreen += 1;
+        }
     
         return childRock;
     }
@@ -188,5 +199,18 @@ public class ObstaclesSpawner : MonoBehaviour
     public void DespawnAlien()
     {
         currentAliensOnScreen -= 1;
+    }
+
+    public void Reset()
+    {
+        currentRocksOnScreen = 0;
+        currentAliensOnScreen = 0;
+        foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
+            if (!child.CompareTag("spawner"))
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        Start();
     }
 }

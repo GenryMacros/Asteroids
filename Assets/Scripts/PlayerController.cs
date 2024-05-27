@@ -7,15 +7,20 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController instance;
+    
     public float maxSpeed = 10f;
     public float rotationSpeed = 100f;
     public float accelerationIncreaseRate = 2f;
     public float oppositePower = 0.01f;
     public float fireCooldown = 1.0f;
     public float projectileSpeed = 30f;
+    public float deathDuration = 1.0f;
     public Camera cam;
     public BulletObstacle bulletPrefab;
     public GameObject bulletSpawnPoint;
+    public MeshRenderer body;
+    public int lives = 3;
     
     public InputAction moveAction;
     public InputAction shootAction;
@@ -26,9 +31,16 @@ public class PlayerController : MonoBehaviour
     private Vector2 _screenZeroCoordsInWorld;
     private Vector2 _screenMaxCoordsInWorld;
     private float _tilNextFire = 0.0f;
+    private float _deathTime = 0.0f;
+    private bool _isDead = false;
     
     private SphereCollider _collider;
     private Rigidbody _rigidbody;
+    
+    private void Awake()
+    {
+        instance = this;
+    }
     
     private void OnEnable()
     {
@@ -56,6 +68,23 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
+        #region Death
+        
+        if (_isDead)
+        {
+            _deathTime += Time.deltaTime;
+            if (_deathTime >= deathDuration && lives > 0)
+            {
+                _isDead = false;
+                body.enabled = true;
+                _deathTime = 0;
+                transform.position = Vector3.zero;
+            }
+
+            return;
+        }
+        #endregion
+        
         #region Inputs
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         float shootInput = shootAction.ReadValue<float>();
@@ -136,6 +165,10 @@ public class PlayerController : MonoBehaviour
     
     void FixedUpdate()
     {
+        if (_isDead)
+        {
+            return;
+        }
         Vector3 rotationVector = new Vector3(0, _rotationY, 0);
 
         transform.position += new Vector3(_velocity.x, 0, _velocity.y);
@@ -168,10 +201,46 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.gameObject.name.StartsWith("player"))
+        if (!other.gameObject.name.StartsWith("player") && !_isDead)
         {
             UiManager.instance.TakeLife();
         }
         
+    }
+
+    public void Die()
+    {
+        if (!_isDead)
+        {
+            body.enabled = false;
+            _isDead = true;
+            lives -= 1;
+        }
+    }
+    
+    public bool IsDead()
+    {
+        return _isDead;
+    }
+    
+    public void Reset()
+    {
+        lives = 3;
+        _velocity = Vector2.zero;
+        _rotationY = 0;
+        _deathTime = 0;
+        _tilNextFire = 0;
+        _isDead = false;
+        body.enabled = true;
+        transform.Rotate(Vector3.zero);
+
+        foreach (Transform child in transform.parent.GetComponentsInChildren<Transform>()) {
+            if (child.gameObject.CompareTag("bullet"))
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        
+        transform.position = Vector3.zero;
     }
 }

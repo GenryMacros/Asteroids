@@ -27,9 +27,9 @@ public class BulletObstacle : Obstacle
         }
     }
     
-    void Update()
+    protected override bool IsAnyRendererVisible() 
     {
-        
+        return renderer.isVisible;
     }
     
     void FixedUpdate()
@@ -51,9 +51,12 @@ public class BulletObstacle : Obstacle
     {
         if (other.gameObject.CompareTag("bullet") || 
             other.gameObject.CompareTag("alien") || 
-            other.gameObject.CompareTag("player") || 
             other.gameObject.CompareTag("rock"))
         {
+            Destroy(gameObject);
+        } else if (other.gameObject.CompareTag("player") && !gameObject.GetComponent<PlayerController>().IsDead())
+        {
+            other.gameObject.GetComponent<PlayerController>().Die();
             Destroy(gameObject);
         }
     }

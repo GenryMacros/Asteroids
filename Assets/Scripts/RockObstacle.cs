@@ -6,6 +6,7 @@ using Random = UnityEngine.Random;
 
 public class RockObstacle : Obstacle
 {
+    public bool isOriginalRock = false;
     private int _clustersCount = 2;
     
     public void Init(Vector2 initialVelocity, SizeType sizeType)
@@ -38,13 +39,19 @@ public class RockObstacle : Obstacle
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("bullet") || 
-            other.gameObject.CompareTag("alien") || 
-            other.gameObject.CompareTag("player"))
+            other.gameObject.CompareTag("alien"))
         {
             if (other.gameObject.name.Contains("player"))
             {
-                UiManager.instance.IncreaseScore(UiManager.instance.scoreRockWorth * ((int)_sizeType + 1));
+                if (other.gameObject.CompareTag("bullet"))
+                {
+                    UiManager.instance.IncreaseScore(UiManager.instance.scoreRockWorth * ((int)_sizeType + 1));   
+                }
             }
+            Split();
+        } else if (other.gameObject.CompareTag("player") && !other.gameObject.GetComponent<PlayerController>().IsDead())
+        {
+            other.gameObject.GetComponent<PlayerController>().Die();
             Split();
         }
     }
@@ -65,10 +72,14 @@ public class RockObstacle : Obstacle
                 Vector2 childVelocity = facingVector * _velocity.magnitude * speedMultiplier;
                 SizeType childSizeType = _sizeType - 1 >= 0 ? _sizeType - 1 : SizeType.Small;
                 
-                spawner.InstantiateRock(childVelocity, childSizeType, this);
+                spawner.InstantiateRock(childVelocity, childSizeType, this, false);
             }
         }
-        spawner.DespawnRock();
+
+        if (isOriginalRock)
+        {
+            spawner.DespawnRock();
+        }
         Destroy(this.gameObject);
     }
     

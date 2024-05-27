@@ -9,6 +9,7 @@ TagManager:
   - bullet
   - rock
   - prefab
+  - spawner
   layers:
   - Default
   - TransparentFX

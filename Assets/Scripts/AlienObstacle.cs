@@ -11,6 +11,7 @@ public class AlienObstacle : Obstacle
     public float changeDirectionCooldown = 0.5f;
     public GameObject bulletSpawnPointPivot;
     public GameObject bulletSpawnPoint;
+    public Vector2 initialDirection;
     
     private float _tilNextFire = 0.0f;
     private float _tilNextDirChange = 0.0f;
@@ -62,7 +63,7 @@ public class AlienObstacle : Obstacle
                 _tilNextFire = 0;
             }
             
-            if (_tilNextDirChange >= changeDirectionCooldown)
+            if (_tilNextDirChange >= changeDirectionCooldown && IsAnyRendererVisible())
             {
                 int randomVal = Random.Range(0, 100);
                 if (randomVal > 70)
@@ -92,7 +93,7 @@ public class AlienObstacle : Obstacle
             dirChange.y *= -1;
         }
 
-        _velocity += dirChange * speed;
+        _velocity = (initialDirection + dirChange).normalized * speed;
 
     }
     
@@ -118,18 +119,23 @@ public class AlienObstacle : Obstacle
     private void OnTriggerEnter(Collider other)
     {
         ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
-        if (other.gameObject.CompareTag("player") ||
-            other.gameObject.CompareTag("rock"))
+        if (other.gameObject.CompareTag("rock"))
         {
             spawner.DespawnAlien();
-            Destroy(this.gameObject);
-        } else if (other.gameObject.CompareTag("bullet"))
+            Destroy(gameObject);
+        } else if (other.gameObject.CompareTag("player") && !other.gameObject.GetComponent<PlayerController>().IsDead())
+        {
+            spawner.DespawnAlien();
+            other.gameObject.GetComponent<PlayerController>().Die();
+            Destroy(gameObject);
+        }
+        else if (other.gameObject.CompareTag("bullet"))
         {
             if (!other.gameObject.name.Contains("alien"))
             {
                 spawner.DespawnAlien();
                 UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth * ((int)_sizeType + 1));
-                Destroy(this.gameObject);
+                Destroy(gameObject);
             }
         }
     }

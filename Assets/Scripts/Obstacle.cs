@@ -18,15 +18,14 @@ public class Obstacle : MonoBehaviour
     public Camera cam;
     public bool isPrefab = false;
     public float speed = 0;
-    public Vector2 direction;
     
     protected SizeType _sizeType = SizeType.Medium;
     protected Vector2 _velocity;
     protected SphereCollider _collider;
     protected Rigidbody _rigidbody;
-    protected Vector2 initialDirection;
+    protected MeshRenderer renderer;
     
-    private MeshRenderer renderer;
+    private Renderer[] renderers;
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
     
@@ -59,12 +58,20 @@ public class Obstacle : MonoBehaviour
 
     public void Start()
     {
+        renderers = GetComponentsInChildren<Renderer>();
         renderer = GetComponent<MeshRenderer>();
     }
 
-    private bool IsAnyRendererVisible()
+    protected virtual bool IsAnyRendererVisible()
     {
-        return renderer.isVisible;
+        foreach(var rend in renderers)
+        {
+            if(rend.isVisible)
+            {
+                return true;
+            }
+        }
+        return false;
     }
     
     void Update()
