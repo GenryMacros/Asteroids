@@ -41,6 +41,10 @@ public class RockObstacle : Obstacle
             other.gameObject.CompareTag("alien") || 
             other.gameObject.CompareTag("player"))
         {
+            if (other.gameObject.name.Contains("player"))
+            {
+                UiManager.instance.IncreaseScore(UiManager.instance.scoreRockWorth * ((int)_sizeType + 1));
+            }
             Split();
         }
     }

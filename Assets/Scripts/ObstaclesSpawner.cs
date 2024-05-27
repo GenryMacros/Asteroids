@@ -59,23 +59,26 @@ public class ObstaclesSpawner : MonoBehaviour
         float rockX = Random.Range(0, Screen.width);
 
         Vector2 position = new Vector2(rockX, rockY);
-        float rockRotation = Random.Range(0.0f, 360.0f);
-        double rockRotationRadians = (rockRotation * Math.PI) / 180;
+        float rotation = Random.Range(0.0f, 360.0f);
+        double rotationRadians = (rotation * Math.PI) / 180;
             
         Vector2 direction = new Vector2(
-            (float)Math.Cos(rockRotationRadians),
-            -(float)Math.Sin(rockRotationRadians)).normalized;
+            (float)Math.Cos(rotationRadians),
+            -(float)Math.Sin(rotationRadians)).normalized;
             
             
         position += -direction * (new Vector2(Screen.width, Screen.height));
         position = MakePositionOutOfBoudns(position, rockType);
-            
-        Vector3 velocity = direction * Random.Range(minRocksSpeed, maxRocksSpeed);
+        
+        float rockSpeed = Random.Range(minRocksSpeed, maxRocksSpeed);
+        Vector3 velocity = direction * rockSpeed;
             
         RockObstacle rock = InstantiateRock(velocity, (SizeType)rockType, rockPrefab);
-        rock.transform.eulerAngles = new Vector3(0.0f, rockRotation, 0.0f);
+        rock.transform.eulerAngles = new Vector3(0.0f, rotation, 0.0f);
         rock.transform.position = cam.ScreenToWorldPoint(position);
         rock.transform.position = new Vector3(rock.transform.position.x, 0, rock.transform.position.z);
+        rock.speed = rockSpeed;
+        rock.direction = direction;
     }
     
     private void SpawnAlien()
@@ -86,12 +89,12 @@ public class ObstaclesSpawner : MonoBehaviour
         float rockX = Random.Range(0, Screen.width);
 
         Vector2 position = new Vector2(rockX, rockY);
-        float rockRotation = Random.Range(0.0f, 360.0f);
-        double rockRotationRadians = (rockRotation * Math.PI) / 180;
+        float rotation = Random.Range(0.0f, 360.0f);
+        double rotationRadians = (rotation * Math.PI) / 180;
             
         Vector2 direction = new Vector2(
-            (float)Math.Cos(rockRotationRadians),
-            -(float)Math.Sin(rockRotationRadians)).normalized;
+            (float)Math.Cos(rotationRadians),
+            -(float)Math.Sin(rotationRadians)).normalized;
             
             
         position += -direction * (new Vector2(Screen.width, Screen.height));
@@ -103,6 +106,8 @@ public class ObstaclesSpawner : MonoBehaviour
         
         alien.transform.position = cam.ScreenToWorldPoint(position);
         alien.transform.position = new Vector3(alien.transform.position.x, 0, alien.transform.position.z);
+        alien.speed = alienSpeed;
+        alien.direction = direction;
     }
 
     private Vector2 MakePositionOutOfBoudns(Vector2 position, int type)

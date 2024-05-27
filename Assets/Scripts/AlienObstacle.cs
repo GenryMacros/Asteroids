@@ -7,12 +7,13 @@ public class AlienObstacle : Obstacle
 {
     public float projectileSpeed = 40.0f;
     public BulletObstacle bulletPrefab;
-    public float bulletFireInterval = 1;
     public float fireCooldown = 1.0f;
+    public float changeDirectionCooldown = 0.5f;
     public GameObject bulletSpawnPointPivot;
     public GameObject bulletSpawnPoint;
     
     private float _tilNextFire = 0.0f;
+    private float _tilNextDirChange = 0.0f;
     
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
@@ -49,20 +50,55 @@ public class AlienObstacle : Obstacle
             {
                 _tilNextFire += Time.deltaTime;
             }
-
+            
+            if (_tilNextDirChange < changeDirectionCooldown)
+            {
+                _tilNextDirChange += Time.deltaTime;
+            }
+            
             if (_tilNextFire >= fireCooldown)
             {
                 Fire();
                 _tilNextFire = 0;
             }
             
+            if (_tilNextDirChange >= changeDirectionCooldown)
+            {
+                int randomVal = Random.Range(0, 100);
+                if (randomVal > 70)
+                {
+                    ChangeDirection();
+                }
+                else
+                {
+                    _velocity = initialDirection * speed;
+                }
+                _tilNextDirChange = 0;
+            }
+            
         }
+    }
+
+    void ChangeDirection()
+    {
+        Vector2 dirChange = new Vector2((float)Math.PI / 4, (float)Math.PI / 4);
+        int randomVal = Random.Range(0, 100);
+        if (randomVal > 50)
+        {
+            dirChange.x *= -1;
+        }
+        else
+        {
+            dirChange.y *= -1;
+        }
+
+        _velocity += dirChange * speed;
+
     }
     
     private void Fire()
     {
         BulletObstacle newBullet = Instantiate(bulletPrefab, transform.parent);
-        newBullet.transform.position = bulletSpawnPoint.transform.position;
 
         float randomRotation = Random.Range(0, 360);
         bulletSpawnPointPivot.transform.eulerAngles = new Vector3(0.0f, randomRotation, 0.0f);
@@ -76,6 +112,7 @@ public class AlienObstacle : Obstacle
         newBullet.Init(bulletVelocity, _sizeType);
         newBullet.isPrefab = false;
         newBullet.name += " alien ";
+        newBullet.transform.position = bulletSpawnPoint.transform.position;
     }
     
     private void OnTriggerEnter(Collider other)
@@ -91,6 +128,7 @@ public class AlienObstacle : Obstacle
             if (!other.gameObject.name.Contains("alien"))
             {
                 spawner.DespawnAlien();
+                UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth * ((int)_sizeType + 1));
                 Destroy(this.gameObject);
             }
         }

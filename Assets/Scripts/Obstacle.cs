@@ -17,13 +17,16 @@ public class Obstacle : MonoBehaviour
     public GameObject visuals = null;
     public Camera cam;
     public bool isPrefab = false;
+    public float speed = 0;
+    public Vector2 direction;
     
     protected SizeType _sizeType = SizeType.Medium;
     protected Vector2 _velocity;
     protected SphereCollider _collider;
     protected Rigidbody _rigidbody;
-
-    private Renderer[] renderers;
+    protected Vector2 initialDirection;
+    
+    private MeshRenderer renderer;
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
     
@@ -56,19 +59,12 @@ public class Obstacle : MonoBehaviour
 
     public void Start()
     {
-        renderers = GetComponentsInChildren<Renderer>();
+        renderer = GetComponent<MeshRenderer>();
     }
 
-    bool IsAnyRendererVisible()
+    private bool IsAnyRendererVisible()
     {
-        foreach(var rend in renderers)
-        {
-            if(rend.isVisible)
-            {
-                return true;
-            }
-        }
-        return false;
+        return renderer.isVisible;
     }
     
     void Update()
@@ -79,7 +75,7 @@ public class Obstacle : MonoBehaviour
     protected void TeleportToScreenBorder()
     {
         var isVisible = IsAnyRendererVisible();
- 
+        
         if(isVisible)
         {
             isWrappingX = false;
@@ -97,7 +93,7 @@ public class Obstacle : MonoBehaviour
             newPosition.x = -newPosition.x;
             isWrappingX = true;
         }
-        if (!isWrappingZ && (viewportPosition.z > 1 || viewportPosition.z < 0))
+        if (!isWrappingZ && (viewportPosition.y > 1 || viewportPosition.y < 0))
         {
             newPosition.z = -newPosition.z;
             isWrappingZ = true;

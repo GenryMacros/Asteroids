@@ -168,17 +168,10 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("alien") ||
-            other.gameObject.CompareTag("rock"))
+        if (!other.gameObject.name.StartsWith("player"))
         {
-            // Something
+            UiManager.instance.TakeLife();
         }
-        else if (other.gameObject.CompareTag("bullet"))
-        {
-            if (!other.gameObject.name.StartsWith("player"))
-            {
-                // something
-            }
-        }
+        
     }
 }
