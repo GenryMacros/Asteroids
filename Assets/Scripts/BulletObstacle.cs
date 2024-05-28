@@ -1,5 +1,5 @@
-using Siccity.GLTFUtility;
 using UnityEngine;
+
 
 public class BulletObstacle : Obstacle
 {
@@ -11,12 +11,6 @@ public class BulletObstacle : Obstacle
     void Start()
     {
         base.Start();
-        if (!visuals)
-        {
-            visuals = Importer.LoadFromFile(Application.dataPath + "/Visuals/bullet_placeholder.glb");
-            visuals.transform.position = transform.position;
-            visuals.transform.parent = transform;
-        }
         if (isPrefab)
         {
             gameObject.tag = "prefab";
@@ -34,6 +28,11 @@ public class BulletObstacle : Obstacle
     
     void FixedUpdate()
     {
+        if (UiManager.instance.isGamePaused())
+        {
+            return;
+        }
+        
         if (!isPrefab)
         {
             transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
@@ -54,8 +53,14 @@ public class BulletObstacle : Obstacle
             other.gameObject.CompareTag("rock"))
         {
             Destroy(gameObject);
-        } else if (other.gameObject.CompareTag("player") && !gameObject.GetComponent<PlayerController>().IsDead())
+        } else if (other.gameObject.CompareTag("player") && 
+                   !other.gameObject.GetComponent<PlayerController>().IsDead() &&
+                   !other.gameObject.GetComponent<PlayerController>().IsInvincible())
         {
+            if (gameObject.name.Contains("player"))
+            {
+                return;
+            }
             other.gameObject.GetComponent<PlayerController>().Die();
             Destroy(gameObject);
         }

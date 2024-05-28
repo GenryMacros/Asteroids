@@ -35,6 +35,11 @@ public class ObstaclesSpawner : MonoBehaviour
     
     void Update()
     {
+        if (UiManager.instance && UiManager.instance.isGamePaused())
+        {
+            return;
+        }
+        
         currentTime += Time.deltaTime;
         if (currentTime >= spawnTimeout)
         {
@@ -60,7 +65,7 @@ public class ObstaclesSpawner : MonoBehaviour
 
     private void SpawnRock()
     {
-        int rockType = GetRandomWeightedIndex(new float[]{0.1f, 0.3f, 0.6f});
+        int rockType = GetRandomWeightedIndex(new float[]{0.2f, 0.4f, 0.4f});
             
         float rockY = Random.Range(0, Screen.height);
         float rockX = Random.Range(0, Screen.width);
@@ -73,7 +78,7 @@ public class ObstaclesSpawner : MonoBehaviour
             (float)Math.Cos(rotationRadians),
             -(float)Math.Sin(rotationRadians)).normalized;
             
-            
+        
         position += -direction * (new Vector2(Screen.width, Screen.height));
         position = MakePositionOutOfBoudns(position, rockType);
         
@@ -121,7 +126,7 @@ public class ObstaclesSpawner : MonoBehaviour
     {
         Vector2 screenCoordinates = cam.WorldToScreenPoint(position);
             
-        float shiftRelevant2Size = 6 / (2.0f / (type));
+        float shiftRelevant2Size = 8 / (2.0f / (type));
 
         Vector2 shiftScreenCoords = cam.ScreenToWorldPoint(new Vector2(shiftRelevant2Size, shiftRelevant2Size));
         

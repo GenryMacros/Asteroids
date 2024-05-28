@@ -1,7 +1,7 @@
 using System;
-using Siccity.GLTFUtility;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
 
 public class AlienObstacle : Obstacle
 {
@@ -25,12 +25,6 @@ public class AlienObstacle : Obstacle
     void Start()
     {
         base.Start();
-        if (!visuals)
-        {
-            visuals = Importer.LoadFromFile(Application.dataPath + "/Visuals/alien_placeholder.glb");
-            visuals.transform.position = transform.position;
-            visuals.transform.parent = transform;
-        }
         if (isPrefab)
         {
             gameObject.tag = "prefab";
@@ -43,6 +37,11 @@ public class AlienObstacle : Obstacle
     
     void FixedUpdate()
     {
+        if (UiManager.instance.isGamePaused())
+        {
+            return;
+        }
+        
         if (!isPrefab)
         {
             transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
@@ -76,7 +75,6 @@ public class AlienObstacle : Obstacle
                 }
                 _tilNextDirChange = 0;
             }
-            
         }
     }
 
@@ -94,7 +92,6 @@ public class AlienObstacle : Obstacle
         }
 
         _velocity = (initialDirection + dirChange).normalized * speed;
-
     }
     
     private void Fire()
@@ -123,7 +120,9 @@ public class AlienObstacle : Obstacle
         {
             spawner.DespawnAlien();
             Destroy(gameObject);
-        } else if (other.gameObject.CompareTag("player") && !other.gameObject.GetComponent<PlayerController>().IsDead())
+        } else if (other.gameObject.CompareTag("player") && 
+                   !other.gameObject.GetComponent<PlayerController>().IsDead() &&
+                   !other.gameObject.GetComponent<PlayerController>().IsInvincible())
         {
             spawner.DespawnAlien();
             other.gameObject.GetComponent<PlayerController>().Die();

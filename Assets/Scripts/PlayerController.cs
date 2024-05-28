@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public float fireCooldown = 1.0f;
     public float projectileSpeed = 30f;
     public float deathDuration = 1.0f;
+    public float invincibilityDuration = 1.0f;
     public Camera cam;
     public BulletObstacle bulletPrefab;
     public GameObject bulletSpawnPoint;
@@ -30,9 +31,11 @@ public class PlayerController : MonoBehaviour
     private float _rotationY; 
     private Vector2 _screenZeroCoordsInWorld;
     private Vector2 _screenMaxCoordsInWorld;
+    private float _tilInvincibilityEnd = 0.0f;
     private float _tilNextFire = 0.0f;
     private float _deathTime = 0.0f;
     private bool _isDead = false;
+    private bool _isInvincible = false;
     
     private SphereCollider _collider;
     private Rigidbody _rigidbody;
@@ -68,6 +71,21 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
+        #region Inputs
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        float shootInput = shootAction.ReadValue<float>();
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            UiManager.instance.SwitchPause();
+            return;
+        }
+        
+        #endregion
+        
+        if (UiManager.instance.isGamePaused())
+        {
+            return;
+        }
         #region Death
         
         if (_isDead)
@@ -76,18 +94,29 @@ public class PlayerController : MonoBehaviour
             if (_deathTime >= deathDuration && lives > 0)
             {
                 _isDead = false;
-                body.enabled = true;
+                _velocity = Vector2.zero;
                 _deathTime = 0;
                 transform.position = Vector3.zero;
+                _isInvincible = true;
             }
 
             return;
         }
         #endregion
         
-        #region Inputs
-        Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        float shootInput = shootAction.ReadValue<float>();
+        #region Invincibility
+        
+        if (_isInvincible)
+        {
+            _tilInvincibilityEnd += Time.deltaTime;
+            if (_tilInvincibilityEnd >= invincibilityDuration)
+            {
+                Flicker();
+                _tilInvincibilityEnd = 0;
+                _isInvincible = false;
+                body.enabled = true;
+            }
+        }
         #endregion
         
         #region Movement
@@ -144,7 +173,11 @@ public class PlayerController : MonoBehaviour
             _tilNextFire = 0;
         }
         #endregion
+    }
 
+    private void Flicker()
+    {
+        body.enabled = false;
     }
     
     private void Fire()
@@ -165,7 +198,7 @@ public class PlayerController : MonoBehaviour
     
     void FixedUpdate()
     {
-        if (_isDead)
+        if (_isDead || UiManager.instance.isGamePaused())
         {
             return;
         }
@@ -201,7 +234,8 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.gameObject.name.StartsWith("player") && !_isDead)
+        if (!other.gameObject.name.StartsWith("player") && !_isDead && 
+            !other.gameObject.name.Contains("player") && !_isInvincible)
         {
             UiManager.instance.TakeLife();
         }
@@ -223,6 +257,11 @@ public class PlayerController : MonoBehaviour
         return _isDead;
     }
     
+    public bool IsInvincible()
+    {
+        return _isInvincible;
+    }
+    
     public void Reset()
     {
         lives = 3;
@@ -231,6 +270,8 @@ public class PlayerController : MonoBehaviour
         _deathTime = 0;
         _tilNextFire = 0;
         _isDead = false;
+        _isInvincible = false;
+        _tilInvincibilityEnd = 0;
         body.enabled = true;
         transform.Rotate(Vector3.zero);
 

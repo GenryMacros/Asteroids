@@ -1,20 +1,24 @@
-using System.Collections.Generic;
 using TMPro;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine;
+
 
 public class UiManager : MonoBehaviour
 {
     public static UiManager instance;
     
     public TMP_Text scoreText;
-    public Button newGameButton;
+    public GameObject endGameMenu;
+    public GameObject pauseGameMenu;
     public List<Image> lifeSprites;
     public int scoreRockWorth = 10;
     public int scoreAlienWorth = 20;
-    
-    private int score = 0;
-    private int nextLifeIndex;
+
+    private bool _isGameStopped = false;
+    private int _score = 0;
+    private int _nextLifeIndex;
 
     private void Awake()
     {
@@ -23,24 +27,25 @@ public class UiManager : MonoBehaviour
 
     void Start()
     {
-        scoreText.text = score.ToString();
-        nextLifeIndex = lifeSprites.Count - 1;
-        newGameButton.gameObject.SetActive(false);
+        scoreText.text = _score.ToString();
+        _nextLifeIndex = lifeSprites.Count - 1;
+        endGameMenu.gameObject.SetActive(false);
+        pauseGameMenu.SetActive(false);
     }
 
     public void IncreaseScore(int increment)
     {
-        score += increment;
-        scoreText.text = score.ToString();
+        _score += increment;
+        scoreText.text = _score.ToString();
     }
 
     public void TakeLife()
     {
-        if (nextLifeIndex < lifeSprites.Count && nextLifeIndex >= 0)
+        if (_nextLifeIndex < lifeSprites.Count && _nextLifeIndex >= 0)
         {
-            lifeSprites[nextLifeIndex].enabled = false;
-            nextLifeIndex -= 1;
-            if (nextLifeIndex < 0)
+            lifeSprites[_nextLifeIndex].enabled = false;
+            _nextLifeIndex -= 1;
+            if (_nextLifeIndex < 0)
             {
                 SetupDeathScreen();
             }
@@ -54,23 +59,48 @@ public class UiManager : MonoBehaviour
     
     public void SetupDeathScreen()
     {
-        newGameButton.gameObject.SetActive(true);
+        endGameMenu.gameObject.SetActive(true);
     }
     
     public void Reset()
     {
-        score = 0;
+        _score = 0;
         foreach (var sprite in lifeSprites)
         {
             sprite.enabled = true;
         }
 
-        score = 0;
-        scoreText.text = score.ToString();
-        nextLifeIndex = lifeSprites.Count - 1;
-        newGameButton.gameObject.SetActive(false);
+        scoreText.text = _score.ToString();
+        _nextLifeIndex = lifeSprites.Count - 1;
+        endGameMenu.gameObject.SetActive(false);
         
         PlayerController.instance.Reset();
         ObstaclesSpawner.instance.Reset();
+    }
+    
+    public void TransferToMainMenu()
+    {
+        _isGameStopped = false;
+        pauseGameMenu.SetActive(false);
+        SceneManager.LoadScene(0);
+    }
+
+    public bool isGamePaused()
+    {
+        return _isGameStopped;
+    }
+
+    public void SwitchPause()
+    {
+        if (!_isGameStopped)
+        {
+            _isGameStopped = true;
+            pauseGameMenu.SetActive(true);
+        }
+        else
+        {
+            _isGameStopped = false;
+            pauseGameMenu.SetActive(false);
+        }
     }
 }

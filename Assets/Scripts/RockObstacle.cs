@@ -1,5 +1,4 @@
 using System;
-using Siccity.GLTFUtility;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -19,16 +18,15 @@ public class RockObstacle : Obstacle
     public void Start()
     {
         base.Start();
-        if (!visuals)
-        {
-            visuals = Importer.LoadFromFile(Application.dataPath + "/Visuals/rock_placeholder.glb");
-            visuals.transform.position = transform.position;
-            visuals.transform.parent = transform;
-        }
     }
     
     void FixedUpdate()
     {
+        if (UiManager.instance && UiManager.instance.isGamePaused())
+        {
+            return;
+        }
+        
         if (!isPrefab)
         {
             transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
@@ -49,7 +47,9 @@ public class RockObstacle : Obstacle
                 }
             }
             Split();
-        } else if (other.gameObject.CompareTag("player") && !other.gameObject.GetComponent<PlayerController>().IsDead())
+        } else if (other.gameObject.CompareTag("player") && 
+                   !other.gameObject.GetComponent<PlayerController>().IsDead() &&
+                   !other.gameObject.GetComponent<PlayerController>().IsInvincible())
         {
             other.gameObject.GetComponent<PlayerController>().Die();
             Split();
@@ -67,7 +67,7 @@ public class RockObstacle : Obstacle
                 Vector2 facingVector = new Vector2(
                     (float)Math.Cos(facingAngle),
                     -(float)Math.Sin(facingAngle));
-                float speedMultiplier = Random.Range(1.5f, 2.5f);
+                float speedMultiplier = Random.Range(1.1f, 1.8f);
                 
                 Vector2 childVelocity = facingVector * _velocity.magnitude * speedMultiplier;
                 SizeType childSizeType = _sizeType - 1 >= 0 ? _sizeType - 1 : SizeType.Small;
@@ -80,7 +80,7 @@ public class RockObstacle : Obstacle
         {
             spawner.DespawnRock();
         }
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
     
     private void SetClustersCount()

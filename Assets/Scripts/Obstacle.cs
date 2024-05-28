@@ -14,7 +14,6 @@ public enum SizeType
 [RequireComponent(typeof(MeshRenderer))]
 public class Obstacle : MonoBehaviour
 {
-    public GameObject visuals = null;
     public Camera cam;
     public bool isPrefab = false;
     public float speed = 0;
@@ -74,11 +73,6 @@ public class Obstacle : MonoBehaviour
         return false;
     }
     
-    void Update()
-    {
-        
-    }
-    
     protected void TeleportToScreenBorder()
     {
         var isVisible = IsAnyRendererVisible();
@@ -94,7 +88,7 @@ public class Obstacle : MonoBehaviour
         }
         var newPosition = transform.position;
         var viewportPosition = cam.WorldToViewportPoint(newPosition);
-        
+
         if (!isWrappingX && (viewportPosition.x > 1 || viewportPosition.x < 0))
         {
             newPosition.x = -newPosition.x;
