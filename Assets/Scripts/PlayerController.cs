@@ -17,10 +17,11 @@ public class PlayerController : MonoBehaviour
     public float projectileSpeed = 30f;
     public float deathDuration = 1.0f;
     public float invincibilityDuration = 1.0f;
+    public float flickeringInterval = 0.2f;
     public Camera cam;
     public BulletObstacle bulletPrefab;
     public GameObject bulletSpawnPoint;
-    public MeshRenderer body;
+    public GameObject body;
     public int lives = 3;
     
     public InputAction moveAction;
@@ -33,12 +34,14 @@ public class PlayerController : MonoBehaviour
     private Vector2 _screenMaxCoordsInWorld;
     private float _tilInvincibilityEnd = 0.0f;
     private float _tilNextFire = 0.0f;
+    private float _tilNextFlicker = 0.0f;
     private float _deathTime = 0.0f;
     private bool _isDead = false;
     private bool _isInvincible = false;
     
     private SphereCollider _collider;
     private Rigidbody _rigidbody;
+    private ParticleSystem engineParticles;
     
     private void Awake()
     {
@@ -67,6 +70,8 @@ public class PlayerController : MonoBehaviour
         _screenZeroCoordsInWorld.y *= -1;
         _screenMaxCoordsInWorld = cam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
         gameObject.tag = "player";
+        engineParticles = body.GetComponent<ParticleSystem>();
+        StopEngine();
     }
     
     void Update()
@@ -109,12 +114,17 @@ public class PlayerController : MonoBehaviour
         if (_isInvincible)
         {
             _tilInvincibilityEnd += Time.deltaTime;
-            if (_tilInvincibilityEnd >= invincibilityDuration)
+            _tilNextFlicker += Time.deltaTime;
+            if (_tilNextFlicker >= flickeringInterval)
             {
                 Flicker();
+                _tilNextFlicker = 0;
+            }
+            if (_tilInvincibilityEnd >= invincibilityDuration)
+            {
                 _tilInvincibilityEnd = 0;
                 _isInvincible = false;
-                body.enabled = true;
+                body.SetActive(true);
             }
         }
         #endregion
@@ -123,6 +133,7 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput.y != 0)
         {
+            StartEngine();
             double rotationY = (transform.rotation.eulerAngles.y * Math.PI) / 180;
 
             Vector2 rotationDir = new Vector2(
@@ -138,7 +149,8 @@ public class PlayerController : MonoBehaviour
             }
         }
         else
-        { 
+        {
+            StopEngine();
             Vector2 velocityBeforeStopping = _velocity;
             _velocity += Time.deltaTime * oppositePower * -_velocity;
             
@@ -177,7 +189,7 @@ public class PlayerController : MonoBehaviour
 
     private void Flicker()
     {
-        body.enabled = false;
+        body.SetActive(!body.activeSelf);
     }
     
     private void Fire()
@@ -194,6 +206,7 @@ public class PlayerController : MonoBehaviour
         newBullet.Init(bulletVelocity, SizeType.Small);
         newBullet.isPrefab = false;
         newBullet.name += " player ";
+        newBullet.transform.eulerAngles = transform.eulerAngles;
     }
     
     void FixedUpdate()
@@ -246,7 +259,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isDead)
         {
-            body.enabled = false;
+            body.SetActive(false);
             _isDead = true;
             lives -= 1;
         }
@@ -272,7 +285,7 @@ public class PlayerController : MonoBehaviour
         _isDead = false;
         _isInvincible = false;
         _tilInvincibilityEnd = 0;
-        body.enabled = true;
+        body.SetActive(true);
         transform.Rotate(Vector3.zero);
 
         foreach (Transform child in transform.parent.GetComponentsInChildren<Transform>()) {
@@ -283,5 +296,21 @@ public class PlayerController : MonoBehaviour
         }
         
         transform.position = Vector3.zero;
+    }
+
+    private void StartEngine()
+    {
+        if (!engineParticles.isPlaying)
+        {
+            engineParticles.Play();   
+        }
+    }
+    
+    private void StopEngine()
+    {
+        if (!engineParticles.isStopped)
+        {
+            engineParticles.Stop();   
+        }
     }
 }
