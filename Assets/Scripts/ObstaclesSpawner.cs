@@ -22,6 +22,7 @@ public class ObstaclesSpawner : MonoBehaviour
     
     private int currentRocksOnScreen = 0;
     private int currentAliensOnScreen = 0;
+    private Vector2 screenSize;
     
     private void Awake()
     {
@@ -31,6 +32,7 @@ public class ObstaclesSpawner : MonoBehaviour
     void Start()
     {
         Spawn();
+        screenSize = new Vector2(Screen.width / 3, Screen.height / 3);
     }
     
     void Update()
@@ -67,19 +69,20 @@ public class ObstaclesSpawner : MonoBehaviour
     {
         int rockType = GetRandomWeightedIndex(new float[]{0.2f, 0.4f, 0.4f});
             
-        float rockY = Random.Range(0, Screen.height);
-        float rockX = Random.Range(0, Screen.width);
+        float rockY = Random.Range(0, screenSize.y);
+        float rockX = Random.Range(0, screenSize.x);
 
         Vector2 position = new Vector2(rockX, rockY);
+        position = cam.ScreenToWorldPoint(new Vector3(position.x, 0, position.y));
         float rotation = Random.Range(0.0f, 360.0f);
         double rotationRadians = (rotation * Math.PI) / 180;
             
         Vector2 direction = new Vector2(
             (float)Math.Cos(rotationRadians),
             -(float)Math.Sin(rotationRadians)).normalized;
-            
-        
-        position += -direction * (new Vector2(Screen.width, Screen.height));
+  
+        position = cam.WorldToViewportPoint(new Vector3(position.x, 0, position.y));
+        position += -direction * (Vector2.one - position);
         position = MakePositionOutOfBoudns(position, rockType);
         
         float speed = Random.Range(minRocksSpeed, maxRocksSpeed);
@@ -87,7 +90,7 @@ public class ObstaclesSpawner : MonoBehaviour
             
         RockObstacle rock = InstantiateRock(velocity, (SizeType)rockType, rockPrefab, true);
         rock.transform.eulerAngles = new Vector3(0.0f, rotation, 0.0f);
-        rock.transform.position = cam.ScreenToWorldPoint(position);
+        rock.transform.position = cam.ViewportToWorldPoint(position);
         rock.transform.position = new Vector3(rock.transform.position.x, 0, rock.transform.position.z);
         rock.speed = speed;
     }
@@ -96,8 +99,8 @@ public class ObstaclesSpawner : MonoBehaviour
     {
         int alienType = GetRandomWeightedIndex(new float[]{0.5f, 0.5f});
             
-        float rockY = Random.Range(0, Screen.height);
-        float rockX = Random.Range(0, Screen.width);
+        float rockY = Random.Range(0, screenSize.y);
+        float rockX = Random.Range(0, screenSize.x);
 
         Vector2 position = new Vector2(rockX, rockY);
         float rotation = Random.Range(0.0f, 360.0f);
@@ -108,7 +111,7 @@ public class ObstaclesSpawner : MonoBehaviour
             -(float)Math.Sin(rotationRadians)).normalized;
             
             
-        position += -direction * (new Vector2(Screen.width, Screen.height));
+        position += -direction * (new Vector2(screenSize.x, screenSize.y));
         position = MakePositionOutOfBoudns(position, alienType);
         
         float speed = Random.Range(minAlienSpeed, maxAlienSpeed);
@@ -124,26 +127,20 @@ public class ObstaclesSpawner : MonoBehaviour
 
     private Vector2 MakePositionOutOfBoudns(Vector2 position, int type)
     {
-        Vector2 screenCoordinates = cam.WorldToScreenPoint(position);
-            
-        float shiftRelevant2Size = 8 / (2.0f / (type));
-
-        Vector2 shiftScreenCoords = cam.ScreenToWorldPoint(new Vector2(shiftRelevant2Size, shiftRelevant2Size));
-        
-        if (screenCoordinates.x - Screen.width * 0.3 < Screen.width)
+        if (position.x - 0.1 < 1)
         {
-            position.x = Screen.width + shiftRelevant2Size;
-        } else if (screenCoordinates.x + Screen.width * 0.3 > 0)
+            position.x = 1.1f;
+        } else if (position.x + 0.1 > 0)
         {
-            position.x  = -shiftScreenCoords.x;
+            position.x  = -0.1f;
         }
 
-        if (screenCoordinates.y - Screen.height * 0.3 < Screen.height)
+        if (position.y - 0.1 < 1)
         {
-            position.y = Screen.height + shiftRelevant2Size;
-        } else if (screenCoordinates.y + Screen.height * 0.3 > 0)
+            position.y = 1.1f;
+        } else if (position.y + 0.1 > 0)
         {
-            position.y = -shiftScreenCoords.y;
+            position.y = -0.1f;
         }
 
         return position;
@@ -181,7 +178,8 @@ public class ObstaclesSpawner : MonoBehaviour
         {
             currentRocksOnScreen += 1;
         }
-    
+
+        childRock.transform.eulerAngles = new Vector3(Random.Range(-45, 45), Random.Range(0, 180), 0);
         return childRock;
     }
     

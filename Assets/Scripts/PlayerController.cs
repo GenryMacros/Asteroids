@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour
     public InputAction moveAction;
     public InputAction shootAction;
     
+    private Renderer[] renderers;
+    
     private Vector2 _velocity = Vector2.zero;
     private Vector2 _lastMovingDirection = Vector2.zero;
     private float _rotationY; 
@@ -42,6 +44,9 @@ public class PlayerController : MonoBehaviour
     private SphereCollider _collider;
     private Rigidbody _rigidbody;
     private ParticleSystem engineParticles;
+    
+    private bool isWrappingX = false;
+    private bool isWrappingZ = false;
     
     private void Awake()
     {
@@ -62,6 +67,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        renderers = GetComponentsInChildren<Renderer>();
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.useGravity = false;
         _collider = GetComponent<SphereCollider>();
@@ -223,26 +229,45 @@ public class PlayerController : MonoBehaviour
         TeleportToScreenBorder();
     }
 
-    private void TeleportToScreenBorder()
+    void TeleportToScreenBorder()
     {
-        Vector3 currentPosition = transform.position;
-        Vector2 screenCoordinates = cam.WorldToScreenPoint(currentPosition);
-
-        if (screenCoordinates.x > Screen.width)
+        var isVisible = IsAnyRendererVisible();
+        
+        if(isVisible)
         {
-            transform.position = new Vector3(_screenZeroCoordsInWorld.x, currentPosition.y, currentPosition.z);
-        } else if (screenCoordinates.x < 0)
-        {
-            transform.position = new Vector3(_screenMaxCoordsInWorld.x, currentPosition.y, currentPosition.z);
+            isWrappingX = false;
+            isWrappingZ = false;
+            return;
         }
-
-        if (screenCoordinates.y > Screen.height)
-        {
-            transform.position = new Vector3(currentPosition.x, currentPosition.y, _screenZeroCoordsInWorld.y);
-        } else if (screenCoordinates.y < 0)
-        {
-            transform.position = new Vector3(currentPosition.x, currentPosition.y, _screenMaxCoordsInWorld.y);
+        if(isWrappingX && isWrappingZ) {
+            return;
         }
+        var newPosition = transform.position;
+        var viewportPosition = cam.WorldToViewportPoint(newPosition);
+
+        if (!isWrappingX && (viewportPosition.x > 1 || viewportPosition.x < 0))
+        {
+            newPosition.x = -newPosition.x;
+            isWrappingX = true;
+        }
+        if (!isWrappingZ && (viewportPosition.y > 1 || viewportPosition.y < 0))
+        {
+            newPosition.z = -newPosition.z;
+            isWrappingZ = true;
+        }
+        transform.position = newPosition;
+    }
+    
+    protected virtual bool IsAnyRendererVisible()
+    {
+        foreach(var rend in renderers)
+        {
+            if(rend.isVisible)
+            {
+                return true;
+            }
+        }
+        return false;
     }
     
     private void OnTriggerEnter(Collider other)
