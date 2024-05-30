@@ -83,7 +83,7 @@ public class ObstaclesSpawner : MonoBehaviour
   
         position = cam.WorldToViewportPoint(new Vector3(position.x, 0, position.y));
         position += -direction * (Vector2.one - position);
-        position = MakePositionOutOfBoudns(position, rockType);
+        position = MakePositionOutOfBoudns(position);
         
         float speed = Random.Range(minRocksSpeed, maxRocksSpeed);
         Vector3 velocity = direction * speed;
@@ -99,10 +99,11 @@ public class ObstaclesSpawner : MonoBehaviour
     {
         int alienType = GetRandomWeightedIndex(new float[]{0.5f, 0.5f});
             
-        float rockY = Random.Range(0, screenSize.y);
-        float rockX = Random.Range(0, screenSize.x);
+        float alienY = Random.Range(0, screenSize.y);
+        float alienX = Random.Range(0, screenSize.x);
 
-        Vector2 position = new Vector2(rockX, rockY);
+        Vector2 position = new Vector2(alienX, alienY);
+        position = cam.ScreenToWorldPoint(new Vector3(position.x, 0, position.y));
         float rotation = Random.Range(0.0f, 360.0f);
         double rotationRadians = (rotation * Math.PI) / 180;
             
@@ -111,8 +112,9 @@ public class ObstaclesSpawner : MonoBehaviour
             -(float)Math.Sin(rotationRadians)).normalized;
             
             
-        position += -direction * (new Vector2(screenSize.x, screenSize.y));
-        position = MakePositionOutOfBoudns(position, alienType);
+        position = cam.WorldToViewportPoint(new Vector3(position.x, 0, position.y));
+        position += -direction * (Vector2.one - position);
+        position = MakePositionOutOfBoudns(position);
         
         float speed = Random.Range(minAlienSpeed, maxAlienSpeed);
         Vector3 velocity = direction * speed;
@@ -125,7 +127,7 @@ public class ObstaclesSpawner : MonoBehaviour
         alien.initialDirection = direction;
     }
 
-    private Vector2 MakePositionOutOfBoudns(Vector2 position, int type)
+    private Vector2 MakePositionOutOfBoudns(Vector2 position)
     {
         if (position.x - 0.1 < 1)
         {
