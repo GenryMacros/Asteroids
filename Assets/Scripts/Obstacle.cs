@@ -17,17 +17,17 @@ public class Obstacle : MonoBehaviour
     public Camera cam;
     public bool isPrefab = false;
     public float speed = 0;
-    
+
     protected SizeType _sizeType = SizeType.Medium;
     protected Vector2 _velocity;
     protected SphereCollider _collider;
     protected Rigidbody _rigidbody;
     protected MeshRenderer renderer;
-    
+
     private Renderer[] renderers;
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
-    
+
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -38,7 +38,7 @@ public class Obstacle : MonoBehaviour
         _rigidbody.useGravity = false;
         ConfigureScale();
     }
-    
+
     protected void ConfigureScale()
     {
         switch (_sizeType)
@@ -63,29 +63,41 @@ public class Obstacle : MonoBehaviour
 
     protected virtual bool IsAnyRendererVisible()
     {
-        foreach(var rend in renderers)
+        foreach (var rend in renderers)
         {
-            if(rend.isVisible)
+            if (rend.isVisible)
             {
                 return true;
             }
         }
+
         return false;
     }
-    
+
     protected void TeleportToScreenBorder()
     {
-        var isVisible = IsAnyRendererVisible();
+        Vector2 positionOnScreen = cam.WorldToScreenPoint(transform.position);
+        Debug.Log(positionOnScreen);
+        if (positionOnScreen.x > Screen.width || positionOnScreen.y > Screen.height ||
+            positionOnScreen.x < -Screen.width * 0.3 || positionOnScreen.y < -Screen.height * 0.3 )
+        {
+            Disappear();
+        }
         
-        if(isVisible)
+        var isVisible = IsAnyRendererVisible();
+
+        if (isVisible)
         {
             isWrappingX = false;
             isWrappingZ = false;
             return;
         }
-        if(isWrappingX && isWrappingZ) {
+
+        if (isWrappingX && isWrappingZ)
+        {
             return;
         }
+
         var newPosition = transform.position;
         var viewportPosition = cam.WorldToViewportPoint(newPosition);
 
@@ -94,12 +106,18 @@ public class Obstacle : MonoBehaviour
             newPosition.x = -newPosition.x;
             isWrappingX = true;
         }
+
         if (!isWrappingZ && (viewportPosition.y > 1 || viewportPosition.y < 0))
         {
             newPosition.z = -newPosition.z;
             isWrappingZ = true;
         }
+
         transform.position = newPosition;
     }
-    
+
+    protected virtual void Disappear()
+    {
+    }
+
 }

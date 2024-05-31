@@ -138,4 +138,11 @@ public class AlienObstacle : Obstacle
             }
         }
     }
+    
+    protected override void Disappear()
+    {
+        ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
+        spawner.DespawnAlien();
+        Destroy(gameObject);
+    }
 }

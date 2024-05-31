@@ -94,4 +94,14 @@ public class RockObstacle : Obstacle
         }
     }
     
+    protected override void Disappear()
+    {
+        ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
+        if (isOriginalRock)
+        {
+            spawner.DespawnRock();
+        }
+        Destroy(gameObject);
+    }
+    
 }
