@@ -77,7 +77,7 @@ public class Obstacle : MonoBehaviour
     protected void TeleportToScreenBorder()
     {
         Vector2 positionOnScreen = cam.WorldToScreenPoint(transform.position);
-        Debug.Log(positionOnScreen);
+        
         if (positionOnScreen.x > Screen.width || positionOnScreen.y > Screen.height ||
             positionOnScreen.x < -Screen.width * 0.3 || positionOnScreen.y < -Screen.height * 0.3 )
         {
