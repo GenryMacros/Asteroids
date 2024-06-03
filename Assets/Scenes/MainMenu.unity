@@ -147,7 +147,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 86886415}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &86886417
 Camera:
   m_ObjectHideFlags: 0
@@ -992,7 +992,8 @@ MonoBehaviour:
   cam: {fileID: 610036486}
   rockPrefab: {fileID: 1555245410}
   alienPrefab: {fileID: 0}
-  spawnTimeout: 1
+  timeUntilMaxDifficulty: 0
+  initialRocks: 0
   currentTime: 0
   maxRocksOnScreen: 8
   maxAliensOnScreen: 0

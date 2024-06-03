@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,8 +11,10 @@ public class ObstaclesSpawner : MonoBehaviour
     public Camera cam;
     public RockObstacle rockPrefab;
     public AlienObstacle alienPrefab;
-    
-    public float spawnTimeout = 3.0f;
+
+    public float timeUntilMaxDifficulty;
+    public int initialRocks;
+    private float spawnTimeout = 3.0f;
     public float currentTime = 0.0f;
     public int maxRocksOnScreen = 5;
     public int maxAliensOnScreen = 1;
@@ -20,9 +23,11 @@ public class ObstaclesSpawner : MonoBehaviour
     public float maxAlienSpeed = 2.0f;
     public float minAlienSpeed = 2.0f;
     
-    private int currentRocksOnScreen = 0;
-    private int currentAliensOnScreen = 0;
+    private int currentRocksOnScreen;
+    private int currentAliensOnScreen;
     private Vector2 screenSize;
+    private float timeFromStart;
+    private List<Vector3> rockSpawningPositions = new List<Vector3>();
     
     private void Awake()
     {
@@ -31,12 +36,25 @@ public class ObstaclesSpawner : MonoBehaviour
     
     void Start()
     {
-        Spawn();
-        screenSize = new Vector2(Screen.width / 3, Screen.height / 3);
+        screenSize = new Vector2(Screen.width / 3.0f, Screen.height / 3.0f);
+        timeFromStart = 0;
+        
+        foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
+            if (child.CompareTag("Respawn"))
+            {
+                rockSpawningPositions.Add(child.position);
+            }
+        }
+        
+        for (int i = 0; i < initialRocks; i++)
+        {
+            SpawnRock(rockSpawningPositions[Math.Min(i, rockSpawningPositions.Count - 1)]);
+        }
     }
     
-    void Update()
+    void FixedUpdate()
     {
+        timeFromStart += Time.deltaTime;
         if (UiManager.instance && UiManager.instance.isGamePaused())
         {
             return;
@@ -48,6 +66,12 @@ public class ObstaclesSpawner : MonoBehaviour
             Spawn();
             currentTime = 0;
         }
+        
+        float t = Math.Min(timeFromStart / timeUntilMaxDifficulty, 1.0f);
+        spawnTimeout = spawnTimeout * (1.0f - t) + t;
+        
+        maxRocksOnScreen = (int)(maxRocksOnScreen * (1.0f - t) + (maxRocksOnScreen * 3) * t);
+        maxAliensOnScreen = (int)(maxAliensOnScreen * (1.0f - t) + (maxAliensOnScreen * 2) * t);
     }
 
     private void Spawn()
@@ -56,7 +80,7 @@ public class ObstaclesSpawner : MonoBehaviour
         
         if (currentRocksOnScreen < maxRocksOnScreen)
         {
-            SpawnRock();
+            SpawnRock(Vector3.zero);
         }
 
         if (alienSpawnRandomValue > 70 && currentAliensOnScreen < maxAliensOnScreen)
@@ -65,33 +89,40 @@ public class ObstaclesSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnRock()
+    private void SpawnRock(Vector3 spawnPosition)
     {
         int rockType = GetRandomWeightedIndex(new float[]{0.2f, 0.4f, 0.4f});
-            
-        float rockY = Random.Range(0, screenSize.y);
-        float rockX = Random.Range(0, screenSize.x);
-
-        Vector2 position = new Vector2(rockX, rockY);
-        position = cam.ScreenToWorldPoint(new Vector3(position.x, 0, position.y));
+        
         float rotation = Random.Range(0.0f, 360.0f);
         double rotationRadians = (rotation * Math.PI) / 180;
             
         Vector2 direction = new Vector2(
             (float)Math.Cos(rotationRadians),
             -(float)Math.Sin(rotationRadians)).normalized;
-  
-        position = cam.WorldToViewportPoint(new Vector3(position.x, 0, position.y));
-        position += -direction * (Vector2.one - position);
-        position = MakePositionOutOfBoudns(position);
         
         float speed = Random.Range(minRocksSpeed, maxRocksSpeed);
         Vector3 velocity = direction * speed;
-            
         RockObstacle rock = InstantiateRock(velocity, (SizeType)rockType, rockPrefab, true);
+        if (spawnPosition == Vector3.zero)
+        {
+            float rockY = Random.Range(0, screenSize.y);
+            float rockX = Random.Range(0, screenSize.x);
+
+            Vector2 position = new Vector2(rockX, rockY);
+            position = cam.ScreenToWorldPoint(new Vector3(position.x, 0, position.y));
+            
+            position = cam.WorldToViewportPoint(new Vector3(position.x, 0, position.y));
+            position += -direction * (Vector2.one - position);
+            position = MakePositionOutOfBoudns(position);
+            rock.transform.position = cam.ViewportToWorldPoint(position);
+            rock.transform.position = new Vector3(rock.transform.position.x, 0, rock.transform.position.z);
+        }
+        else
+        {
+            rock.transform.position = new Vector3(spawnPosition.x, 0, spawnPosition.z);
+        }
+        
         rock.transform.eulerAngles = new Vector3(0.0f, rotation, 0.0f);
-        rock.transform.position = cam.ViewportToWorldPoint(position);
-        rock.transform.position = new Vector3(rock.transform.position.x, 0, rock.transform.position.z);
         rock.speed = speed;
     }
     
@@ -211,7 +242,7 @@ public class ObstaclesSpawner : MonoBehaviour
         currentRocksOnScreen = 0;
         currentAliensOnScreen = 0;
         foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
-            if (!child.CompareTag("spawner"))
+            if (!child.CompareTag("spawner") && !child.CompareTag("Respawn"))
             {
                 Destroy(child.gameObject);
             }

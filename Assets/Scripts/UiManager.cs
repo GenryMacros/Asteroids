@@ -13,8 +13,8 @@ public class UiManager : MonoBehaviour
     public GameObject endGameMenu;
     public GameObject pauseGameMenu;
     public List<Image> lifeSprites;
-    public int scoreRockWorth = 10;
-    public int scoreAlienWorth = 20;
+    public int scoreRockWorth = 50;
+    public int scoreAlienWorth = 100;
 
     private bool _isGameStopped = false;
     private int _score = 0;

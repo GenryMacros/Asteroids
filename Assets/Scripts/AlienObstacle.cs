@@ -35,6 +35,22 @@ public class AlienObstacle : Obstacle
         }
     }
     
+    protected override void ConfigureScale()
+    {
+        switch (_sizeType)
+        {
+            case SizeType.Big:
+                gameObject.transform.localScale = new Vector3(3, 3, 3);
+                break;
+            case SizeType.Medium:
+                gameObject.transform.localScale = new Vector3(2, 2, 2);
+                break;
+            case SizeType.Small:
+                gameObject.transform.localScale = new Vector3(1, 1, 1);
+                break;
+        }
+    }
+    
     void FixedUpdate()
     {
         if (UiManager.instance.isGamePaused())
@@ -133,7 +149,7 @@ public class AlienObstacle : Obstacle
             if (!other.gameObject.name.Contains("alien"))
             {
                 spawner.DespawnAlien();
-                UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth * ((int)_sizeType + 1));
+                UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth);
                 Destroy(gameObject);
             }
         }

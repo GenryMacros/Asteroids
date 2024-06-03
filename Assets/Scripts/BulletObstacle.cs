@@ -21,6 +21,22 @@ public class BulletObstacle : Obstacle
         }
     }
     
+    protected override void ConfigureScale()
+    {
+        switch (_sizeType)
+        {
+            case SizeType.Big:
+                gameObject.transform.localScale = new Vector3(3, 3, 3);
+                break;
+            case SizeType.Medium:
+                gameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                break;
+            case SizeType.Small:
+                gameObject.transform.localScale = new Vector3(1, 1, 1);
+                break;
+        }
+    }
+    
     protected override bool IsAnyRendererVisible() 
     {
         return renderer.isVisible;

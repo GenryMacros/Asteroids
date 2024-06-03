@@ -39,7 +39,7 @@ public class Obstacle : MonoBehaviour
         ConfigureScale();
     }
 
-    protected void ConfigureScale()
+    protected virtual void ConfigureScale()
     {
         switch (_sizeType)
         {

@@ -43,7 +43,7 @@ public class RockObstacle : Obstacle
             {
                 if (other.gameObject.CompareTag("bullet"))
                 {
-                    UiManager.instance.IncreaseScore(UiManager.instance.scoreRockWorth * ((int)_sizeType + 1));   
+                    UiManager.instance.IncreaseScore(UiManager.instance.scoreRockWorth * (2 - Math.Min((int)_sizeType, 1)));   
                 }
             }
             Split();
