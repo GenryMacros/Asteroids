@@ -11,6 +11,7 @@ TagManager:
   - prefab
   - spawner
   - model
+  - icon
   layers:
   - Default
   - TransparentFX

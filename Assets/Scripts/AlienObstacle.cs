@@ -23,6 +23,8 @@ public class AlienObstacle : Obstacle
     {
         base.Init(initialVelocity, sizeType);
         gameObject.tag = "alien";
+        audioSource.clip = spawnClip;
+        audioSource.Play();
     }
     
     void Start()
@@ -37,9 +39,6 @@ public class AlienObstacle : Obstacle
         {
             gameObject.tag = "bullet";
         }
-
-        audioSource.clip = spawnClip;
-        audioSource.Play();
     }
     
     protected override void ConfigureScale()
@@ -88,7 +87,7 @@ public class AlienObstacle : Obstacle
             if (_tilNextDirChange >= changeDirectionCooldown && IsAnyRendererVisible())
             {
                 int randomVal = Random.Range(0, 100);
-                if (randomVal > 70)
+                if (randomVal > 80)
                 {
                     ChangeDirection();
                 }

@@ -126,6 +126,7 @@ public class Obstacle : MonoBehaviour
     
     protected IEnumerator PlayAudioAndDestroy()
     {
+        _collider.enabled = false;
         foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
             if (child.CompareTag("model"))
             {
