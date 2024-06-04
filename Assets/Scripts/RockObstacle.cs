@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -80,7 +81,8 @@ public class RockObstacle : Obstacle
         {
             spawner.DespawnRock();
         }
-        Destroy(gameObject);
+
+        StartCoroutine(PlayAudioAndDestroy());
     }
     
     private void SetClustersCount()

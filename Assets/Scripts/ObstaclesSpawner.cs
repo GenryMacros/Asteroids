@@ -14,6 +14,7 @@ public class ObstaclesSpawner : MonoBehaviour
 
     public float timeUntilMaxDifficulty;
     public int initialRocks;
+    public float alienSpawnDelay;
     private float spawnTimeout = 3.0f;
     public float currentTime = 0.0f;
     public int maxRocksOnScreen = 5;
@@ -83,7 +84,7 @@ public class ObstaclesSpawner : MonoBehaviour
             SpawnRock(Vector3.zero);
         }
 
-        if (alienSpawnRandomValue > 70 && currentAliensOnScreen < maxAliensOnScreen)
+        if (alienSpawnRandomValue > 70 && currentAliensOnScreen < maxAliensOnScreen && timeFromStart >= alienSpawnDelay)
         {
             SpawnAlien();
         }

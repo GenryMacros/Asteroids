@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Siccity.GLTFUtility;
 using UnityEngine.InputSystem;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
@@ -27,6 +29,9 @@ public class PlayerController : MonoBehaviour
     
     public InputAction moveAction;
     public InputAction shootAction;
+    public AudioClip loopSound;
+    public AudioClip shootSound;
+    public AudioClip destructionSound;
     
     private Renderer[] renderers;
     
@@ -41,7 +46,8 @@ public class PlayerController : MonoBehaviour
     private float _deathTime = 0.0f;
     private bool _isDead = false;
     private bool _isInvincible = false;
-    
+
+    private AudioSource[] _audioSources;
     private SphereCollider _collider;
     private Rigidbody _rigidbody;
     private ParticleSystem engineParticles;
@@ -68,6 +74,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        _audioSources = GetComponentsInChildren<AudioSource>();
+        _audioSources[1].clip = shootSound;
         renderers = GetComponentsInChildren<Renderer>();
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.useGravity = false;
@@ -214,6 +222,7 @@ public class PlayerController : MonoBehaviour
         newBullet.isPrefab = false;
         newBullet.name += " player ";
         newBullet.transform.eulerAngles = transform.eulerAngles;
+        _audioSources[1].Play();
     }
     
     void FixedUpdate()
@@ -283,6 +292,9 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
+        _audioSources[0].clip = destructionSound;
+        _audioSources[0].loop = false;
+        _audioSources[0].Play();
         if (!_isDead)
         {
             body.SetActive(false);
@@ -330,6 +342,13 @@ public class PlayerController : MonoBehaviour
         {
             engineParticles.Play();   
         }
+
+        if (!_audioSources[0].isPlaying)
+        {
+            _audioSources[0].clip = loopSound;
+            _audioSources[0].loop = true;
+            _audioSources[0].Play();
+        }
     }
     
     private void StopEngine()
@@ -337,6 +356,12 @@ public class PlayerController : MonoBehaviour
         if (!engineParticles.isStopped)
         {
             engineParticles.Stop();   
+        }
+
+        if (!_audioSources[0].isPlaying || _audioSources[0].clip == loopSound)
+        {
+            _audioSources[0].Stop();
+            _audioSources[0].loop = false;
         }
     }
 }

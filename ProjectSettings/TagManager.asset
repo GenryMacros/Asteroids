@@ -10,6 +10,7 @@ TagManager:
   - rock
   - prefab
   - spawner
+  - model
   layers:
   - Default
   - TransparentFX

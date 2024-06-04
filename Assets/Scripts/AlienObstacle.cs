@@ -12,6 +12,9 @@ public class AlienObstacle : Obstacle
     public GameObject bulletSpawnPointPivot;
     public GameObject bulletSpawnPoint;
     public Vector2 initialDirection;
+    public AudioClip shootClip;
+    public AudioClip dieClip;
+    public AudioClip spawnClip;
     
     private float _tilNextFire = 0.0f;
     private float _tilNextDirChange = 0.0f;
@@ -25,6 +28,7 @@ public class AlienObstacle : Obstacle
     void Start()
     {
         base.Start();
+        audioSource = GetComponent<AudioSource>();
         if (isPrefab)
         {
             gameObject.tag = "prefab";
@@ -33,6 +37,9 @@ public class AlienObstacle : Obstacle
         {
             gameObject.tag = "bullet";
         }
+
+        audioSource.clip = spawnClip;
+        audioSource.Play();
     }
     
     protected override void ConfigureScale()
@@ -127,22 +134,29 @@ public class AlienObstacle : Obstacle
         newBullet.isPrefab = false;
         newBullet.name += " alien ";
         newBullet.transform.position = bulletSpawnPoint.transform.position;
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.clip = shootClip;
+            audioSource.Play();
+        }
     }
     
     private void OnTriggerEnter(Collider other)
     {
+        audioSource.clip = dieClip;
         ObstaclesSpawner spawner = transform.parent.GetComponent<ObstaclesSpawner>();
         if (other.gameObject.CompareTag("rock"))
         {
             spawner.DespawnAlien();
-            Destroy(gameObject);
+            StartCoroutine(PlayAudioAndDestroy());
         } else if (other.gameObject.CompareTag("player") && 
                    !other.gameObject.GetComponent<PlayerController>().IsDead() &&
                    !other.gameObject.GetComponent<PlayerController>().IsInvincible())
         {
             spawner.DespawnAlien();
             other.gameObject.GetComponent<PlayerController>().Die();
-            Destroy(gameObject);
+            StartCoroutine(PlayAudioAndDestroy());
         }
         else if (other.gameObject.CompareTag("bullet"))
         {
@@ -150,7 +164,7 @@ public class AlienObstacle : Obstacle
             {
                 spawner.DespawnAlien();
                 UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth);
-                Destroy(gameObject);
+                StartCoroutine(PlayAudioAndDestroy());
             }
         }
     }

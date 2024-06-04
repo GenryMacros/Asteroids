@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 
@@ -12,24 +13,27 @@ public enum SizeType
 [RequireComponent(typeof(SphereCollider))]
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(AudioSource))]
 public class Obstacle : MonoBehaviour
 {
     public Camera cam;
     public bool isPrefab = false;
     public float speed = 0;
-
+    
     protected SizeType _sizeType = SizeType.Medium;
     protected Vector2 _velocity;
     protected SphereCollider _collider;
     protected Rigidbody _rigidbody;
     protected MeshRenderer renderer;
-
+    protected AudioSource audioSource;
+    
     private Renderer[] renderers;
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
 
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
+        audioSource = GetComponent<AudioSource>();
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<SphereCollider>();
         _collider.isTrigger = true;
@@ -118,6 +122,19 @@ public class Obstacle : MonoBehaviour
 
     protected virtual void Disappear()
     {
+    }
+    
+    protected IEnumerator PlayAudioAndDestroy()
+    {
+        foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
+            if (child.CompareTag("model"))
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+        audioSource.Play();
+        yield return new WaitUntil(() => audioSource.time >= audioSource.clip.length);
+        Destroy(gameObject);
     }
 
 }
