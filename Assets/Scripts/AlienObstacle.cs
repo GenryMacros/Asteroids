@@ -18,6 +18,7 @@ public class AlienObstacle : Obstacle
     
     private float _tilNextFire = 0.0f;
     private float _tilNextDirChange = 0.0f;
+    private bool isDead = false;
     
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
@@ -59,7 +60,7 @@ public class AlienObstacle : Obstacle
     
     void FixedUpdate()
     {
-        if (UiManager.instance.isGamePaused())
+        if (UiManager.instance.isGamePaused() || isDead)
         {
             return;
         }
@@ -148,6 +149,7 @@ public class AlienObstacle : Obstacle
         if (other.gameObject.CompareTag("rock"))
         {
             spawner.DespawnAlien();
+            isDead = true;
             StartCoroutine(PlayAudioAndDestroy());
         } else if (other.gameObject.CompareTag("player") && 
                    !other.gameObject.GetComponent<PlayerController>().IsDead() &&
@@ -155,6 +157,7 @@ public class AlienObstacle : Obstacle
         {
             spawner.DespawnAlien();
             other.gameObject.GetComponent<PlayerController>().Die();
+            isDead = true;
             StartCoroutine(PlayAudioAndDestroy());
         }
         else if (other.gameObject.CompareTag("bullet"))
@@ -163,6 +166,7 @@ public class AlienObstacle : Obstacle
             {
                 spawner.DespawnAlien();
                 UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth);
+                isDead = true;
                 StartCoroutine(PlayAudioAndDestroy());
             }
         }
