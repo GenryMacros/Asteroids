@@ -55,12 +55,12 @@ public class ObstaclesSpawner : MonoBehaviour
     
     void FixedUpdate()
     {
-        timeFromStart += Time.deltaTime;
         if (UiManager.instance && UiManager.instance.isGamePaused())
         {
             return;
         }
         
+        timeFromStart += Time.deltaTime;
         currentTime += Time.deltaTime;
         if (currentTime >= spawnTimeout)
         {
