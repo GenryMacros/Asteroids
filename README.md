@@ -1,4 +1,5 @@
-# Asteroids
+![alt text](https://github.com/GenryMacros/Asteroids/blob/main/GitResources/icon.png "Icon")
+
 A remake of classical arcade game "Asteroids". The main purpose of this project is to learn Unity game engine basic concepts and get familiar with it. 
 
 ![alt text](https://github.com/GenryMacros/Asteroids/blob/main/GitResources/intro.gif "Small gameplay record")
