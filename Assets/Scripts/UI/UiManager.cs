@@ -16,7 +16,7 @@ public class UiManager : MonoBehaviour
     public int scoreRockWorth = 50;
     public int scoreAlienWorth = 100;
 
-    private bool _isGameStopped = false;
+    public bool _isGameStopped = false;
     private int _score = 0;
     private int _nextLifeIndex;
 
@@ -80,9 +80,7 @@ public class UiManager : MonoBehaviour
     
     public void TransferToMainMenu()
     {
-        _isGameStopped = false;
-        pauseGameMenu.SetActive(false);
-        SceneManager.LoadScene(0);
+        SceneController.instance.ToMainMenu();
     }
 
     public bool isGamePaused()
