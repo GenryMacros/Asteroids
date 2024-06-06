@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Siccity.GLTFUtility;
 using UnityEngine.InputSystem;
 using UnityEngine;
 
