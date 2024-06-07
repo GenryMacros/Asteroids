@@ -34,9 +34,7 @@ public class PlayerController : MonoBehaviour
     
     private Vector2 _velocity = Vector2.zero;
     private Vector2 _lastMovingDirection = Vector2.zero;
-    private float _rotationY; 
-    private Vector2 _screenZeroCoordsInWorld;
-    private Vector2 _screenMaxCoordsInWorld;
+    private float _rotationY;
     private float _tilInvincibilityEnd = 0.0f;
     private float _tilNextFire = 0.0f;
     private float _tilNextFlicker = 0.0f;
@@ -72,9 +70,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        cam = Camera.main;
         bulletPrefab = Resources.Load<BulletObstacle>("BulletPrefab");
-        bulletPrefab.cam = cam;
         _audioSources = GetComponentsInChildren<AudioSource>();
         _audioSources[1].clip = shootSound;
         renderers = GetComponentsInChildren<Renderer>();
@@ -82,9 +78,6 @@ public class PlayerController : MonoBehaviour
         _rigidbody.useGravity = false;
         _collider = GetComponent<SphereCollider>();
         _collider.isTrigger = true;
-        _screenZeroCoordsInWorld = cam.ScreenToWorldPoint(Vector2.zero);
-        _screenZeroCoordsInWorld.y *= -1;
-        _screenMaxCoordsInWorld = cam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
         gameObject.tag = "player";
         engineParticles = body.GetComponent<ParticleSystem>();
         StopEngine();
@@ -220,7 +213,6 @@ public class PlayerController : MonoBehaviour
         Vector2 bulletVelocity = rotationDir * projectileSpeed;
         
         newBullet.Init(bulletVelocity, SizeType.Small);
-        newBullet.isPrefab = false;
         newBullet.name += " player ";
         newBullet.transform.eulerAngles = transform.eulerAngles;
         _audioSources[1].Play();

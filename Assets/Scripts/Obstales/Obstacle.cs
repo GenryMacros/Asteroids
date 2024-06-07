@@ -16,21 +16,19 @@ public enum SizeType
 [RequireComponent(typeof(AudioSource))]
 public class Obstacle : MonoBehaviour
 {
-    public Camera cam;
-    public bool isPrefab = false;
     public float speed = 0;
     
     protected SizeType _sizeType = SizeType.Medium;
     protected Vector2 _velocity;
-    protected SphereCollider _collider;
-    protected Rigidbody _rigidbody;
     protected MeshRenderer renderer;
     protected AudioSource audioSource;
     
     private Renderer[] renderers;
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
-
+    private SphereCollider _collider;
+    private Rigidbody _rigidbody;
+    
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
         audioSource = GetComponent<AudioSource>();
@@ -80,7 +78,7 @@ public class Obstacle : MonoBehaviour
 
     protected void TeleportToScreenBorder()
     {
-        Vector2 positionOnScreen = cam.WorldToScreenPoint(transform.position);
+        Vector2 positionOnScreen = Camera.main.WorldToScreenPoint(transform.position);
         
         if (positionOnScreen.x > Screen.width || positionOnScreen.y > Screen.height ||
             positionOnScreen.x < -Screen.width * 0.3 || positionOnScreen.y < -Screen.height * 0.3 )
@@ -103,7 +101,7 @@ public class Obstacle : MonoBehaviour
         }
 
         var newPosition = transform.position;
-        var viewportPosition = cam.WorldToViewportPoint(newPosition);
+        var viewportPosition = Camera.main.WorldToViewportPoint(newPosition);
 
         if (!isWrappingX && (viewportPosition.x > 1 || viewportPosition.x < 0))
         {

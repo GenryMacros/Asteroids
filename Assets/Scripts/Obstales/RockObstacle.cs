@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -27,12 +26,9 @@ public class RockObstacle : Obstacle
         {
             return;
         }
-        
-        if (!isPrefab)
-        {
-            transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
-            TeleportToScreenBorder();   
-        }
+
+        transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
+        TeleportToScreenBorder();   
     }
     
     private void OnTriggerEnter(Collider other)

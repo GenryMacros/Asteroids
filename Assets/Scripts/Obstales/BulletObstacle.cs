@@ -11,14 +11,7 @@ public class BulletObstacle : Obstacle
     void Start()
     {
         base.Start();
-        if (isPrefab)
-        {
-            gameObject.tag = "prefab";
-        }
-        else
-        {
-            gameObject.tag = "bullet";
-        }
+        gameObject.tag = "bullet";
     }
     
     protected override void ConfigureScale()
@@ -49,16 +42,13 @@ public class BulletObstacle : Obstacle
             return;
         }
         
-        if (!isPrefab)
+        transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
+        TeleportToScreenBorder();   
+        
+        _timeToDeath += Time.deltaTime;
+        if (_timeToDeath >= existTime)
         {
-            transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
-            TeleportToScreenBorder();   
-            
-            _timeToDeath += Time.deltaTime;
-            if (_timeToDeath >= existTime)
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
         }
     }
     

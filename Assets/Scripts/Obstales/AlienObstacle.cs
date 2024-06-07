@@ -32,16 +32,8 @@ public class AlienObstacle : Obstacle
     {
         base.Start();
         bulletPrefab = Resources.Load<BulletObstacle>("BulletPrefab");
-        bulletPrefab.cam = cam;
         audioSource = GetComponent<AudioSource>();
-        if (isPrefab)
-        {
-            gameObject.tag = "prefab";
-        }
-        else
-        {
-            gameObject.tag = "bullet";
-        }
+        gameObject.tag = "bullet";
     }
     
     protected override void ConfigureScale()
@@ -67,39 +59,36 @@ public class AlienObstacle : Obstacle
             return;
         }
         
-        if (!isPrefab)
+        transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
+        TeleportToScreenBorder();   
+        if (_tilNextFire < fireCooldown)
         {
-            transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
-            TeleportToScreenBorder();   
-            if (_tilNextFire < fireCooldown)
+            _tilNextFire += Time.deltaTime;
+        }
+        
+        if (_tilNextDirChange < changeDirectionCooldown)
+        {
+            _tilNextDirChange += Time.deltaTime;
+        }
+        
+        if (_tilNextFire >= fireCooldown)
+        {
+            Fire();
+            _tilNextFire = 0;
+        }
+        
+        if (_tilNextDirChange >= changeDirectionCooldown && IsAnyRendererVisible())
+        {
+            int randomVal = Random.Range(0, 100);
+            if (randomVal > 80)
             {
-                _tilNextFire += Time.deltaTime;
+                ChangeDirection();
             }
-            
-            if (_tilNextDirChange < changeDirectionCooldown)
+            else
             {
-                _tilNextDirChange += Time.deltaTime;
+                _velocity = initialDirection * speed;
             }
-            
-            if (_tilNextFire >= fireCooldown)
-            {
-                Fire();
-                _tilNextFire = 0;
-            }
-            
-            if (_tilNextDirChange >= changeDirectionCooldown && IsAnyRendererVisible())
-            {
-                int randomVal = Random.Range(0, 100);
-                if (randomVal > 80)
-                {
-                    ChangeDirection();
-                }
-                else
-                {
-                    _velocity = initialDirection * speed;
-                }
-                _tilNextDirChange = 0;
-            }
+            _tilNextDirChange = 0;
         }
     }
 
@@ -133,7 +122,6 @@ public class AlienObstacle : Obstacle
         Vector2 bulletVelocity = rotationDir * projectileSpeed;
         
         newBullet.Init(bulletVelocity, _sizeType);
-        newBullet.isPrefab = false;
         newBullet.name += " alien ";
         newBullet.transform.position = bulletSpawnPoint.transform.position;
 
