@@ -9,8 +9,6 @@ public class ObstaclesSpawner : MonoBehaviour
     public static ObstaclesSpawner instance;
     
     public Camera cam;
-    public RockObstacle rockPrefab;
-    public AlienObstacle alienPrefab;
 
     public float timeUntilMaxDifficulty;
     public int initialRocks;
@@ -24,6 +22,8 @@ public class ObstaclesSpawner : MonoBehaviour
     public float maxAlienSpeed = 2.0f;
     public float minAlienSpeed = 2.0f;
     
+    private RockObstacle rockPrefab;
+    private AlienObstacle alienPrefab;
     private int currentRocksOnScreen;
     private int currentAliensOnScreen;
     private Vector2 screenSize;
@@ -37,6 +37,11 @@ public class ObstaclesSpawner : MonoBehaviour
     
     void Start()
     {
+        rockPrefab = Resources.Load<RockObstacle>("RockPrefab");
+        rockPrefab.cam = cam;
+        alienPrefab = Resources.Load<AlienObstacle>("AlienPrefab");
+        alienPrefab.cam = cam;
+        
         screenSize = new Vector2(Screen.width / 3.0f, Screen.height / 3.0f);
         timeFromStart = 0;
         

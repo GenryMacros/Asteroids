@@ -6,7 +6,6 @@ using Random = UnityEngine.Random;
 public class AlienObstacle : Obstacle
 {
     public float projectileSpeed = 40.0f;
-    public BulletObstacle bulletPrefab;
     public float fireCooldown = 1.0f;
     public float changeDirectionCooldown = 0.5f;
     public GameObject bulletSpawnPointPivot;
@@ -19,6 +18,7 @@ public class AlienObstacle : Obstacle
     private float _tilNextFire = 0.0f;
     private float _tilNextDirChange = 0.0f;
     private bool isDead = false;
+    private BulletObstacle bulletPrefab;
     
     public void Init(Vector2 initialVelocity, SizeType sizeType)
     {
@@ -31,6 +31,8 @@ public class AlienObstacle : Obstacle
     void Start()
     {
         base.Start();
+        bulletPrefab = Resources.Load<BulletObstacle>("BulletPrefab");
+        bulletPrefab.cam = cam;
         audioSource = GetComponent<AudioSource>();
         if (isPrefab)
         {

@@ -20,7 +20,6 @@ public class PlayerController : MonoBehaviour
     public float invincibilityDuration = 1.0f;
     public float flickeringInterval = 0.2f;
     public Camera cam;
-    public BulletObstacle bulletPrefab;
     public GameObject bulletSpawnPoint;
     public GameObject body;
     public int lives = 3;
@@ -49,6 +48,7 @@ public class PlayerController : MonoBehaviour
     private SphereCollider _collider;
     private Rigidbody _rigidbody;
     private ParticleSystem engineParticles;
+    private BulletObstacle bulletPrefab;
     
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
@@ -72,6 +72,9 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        cam = Camera.main;
+        bulletPrefab = Resources.Load<BulletObstacle>("BulletPrefab");
+        bulletPrefab.cam = cam;
         _audioSources = GetComponentsInChildren<AudioSource>();
         _audioSources[1].clip = shootSound;
         renderers = GetComponentsInChildren<Renderer>();
