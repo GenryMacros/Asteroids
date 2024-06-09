@@ -5,13 +5,12 @@ public class BulletObstacle : Obstacle
 {
 
     public float existTime = 1.0f;
-   
-    private float _timeToDeath = 0.0f;
     
     void Start()
     {
         base.Start();
         gameObject.tag = "bullet";
+        Invoke(nameof(Die), existTime);
     }
     
     protected override void ConfigureScale()
@@ -44,12 +43,6 @@ public class BulletObstacle : Obstacle
         
         transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
         TeleportToScreenBorder();   
-        
-        _timeToDeath += Time.deltaTime;
-        if (_timeToDeath >= existTime)
-        {
-            Destroy(gameObject);
-        }
     }
     
     private void OnTriggerEnter(Collider other)
@@ -70,5 +63,10 @@ public class BulletObstacle : Obstacle
             other.gameObject.GetComponent<PlayerController>().Die();
             Destroy(gameObject);
         }
+    }
+
+    private void Die()
+    {
+        Destroy(gameObject);
     }
 }

@@ -15,8 +15,6 @@ public class AlienObstacle : Obstacle
     public AudioClip dieClip;
     public AudioClip spawnClip;
     
-    private float _tilNextFire = 0.0f;
-    private float _tilNextDirChange = 0.0f;
     private bool isDead = false;
     private BulletObstacle bulletPrefab;
     
@@ -34,6 +32,8 @@ public class AlienObstacle : Obstacle
         bulletPrefab = Resources.Load<BulletObstacle>("BulletPrefab");
         audioSource = GetComponent<AudioSource>();
         gameObject.tag = "bullet";
+        InvokeRepeating(nameof(Fire), fireCooldown, fireCooldown);
+        InvokeRepeating(nameof(ChangeDirection), changeDirectionCooldown, changeDirectionCooldown);
     }
     
     protected override void ConfigureScale()
@@ -61,51 +61,30 @@ public class AlienObstacle : Obstacle
         
         transform.position += new Vector3(_velocity.x, 0, _velocity.y) * Time.deltaTime;
         TeleportToScreenBorder();   
-        if (_tilNextFire < fireCooldown)
-        {
-            _tilNextFire += Time.deltaTime;
-        }
-        
-        if (_tilNextDirChange < changeDirectionCooldown)
-        {
-            _tilNextDirChange += Time.deltaTime;
-        }
-        
-        if (_tilNextFire >= fireCooldown)
-        {
-            Fire();
-            _tilNextFire = 0;
-        }
-        
-        if (_tilNextDirChange >= changeDirectionCooldown && IsAnyRendererVisible())
-        {
-            int randomVal = Random.Range(0, 100);
-            if (randomVal > 80)
-            {
-                ChangeDirection();
-            }
-            else
-            {
-                _velocity = initialDirection * speed;
-            }
-            _tilNextDirChange = 0;
-        }
     }
 
     void ChangeDirection()
     {
-        Vector2 dirChange = new Vector2((float)Math.PI / 4, (float)Math.PI / 4);
         int randomVal = Random.Range(0, 100);
-        if (randomVal > 50)
+        if (randomVal > 80)
         {
-            dirChange.x *= -1;
+            Vector2 dirChange = new Vector2((float)Math.PI / 4, (float)Math.PI / 4);
+            randomVal = Random.Range(0, 100);
+            if (randomVal > 50)
+            {
+                dirChange.x *= -1;
+            }
+            else
+            {
+                dirChange.y *= -1;
+            }
+
+            _velocity = (initialDirection + dirChange).normalized * speed;
         }
         else
         {
-            dirChange.y *= -1;
+            _velocity = initialDirection * speed;
         }
-
-        _velocity = (initialDirection + dirChange).normalized * speed;
     }
     
     private void Fire()
