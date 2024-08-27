@@ -1,5 +1,31 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1102 &-4701273469854625010
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: lower_circle|lower_circleAction 0
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 2757743136572749884, guid: 28c9c2ebeb099ae40ae6266b04efe292, type: 3}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1107 &-4006921423001853699
 AnimatorStateMachine:
   serializedVersion: 6
@@ -10,8 +36,8 @@ AnimatorStateMachine:
   m_Name: New Layer 0
   m_ChildStates:
   - serializedVersion: 1
-    m_State: {fileID: 739765154721912177}
-    m_Position: {x: 270, y: 130, z: 0}
+    m_State: {fileID: -4701273469854625010}
+    m_Position: {x: 260, y: 120, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -21,7 +47,7 @@ AnimatorStateMachine:
   m_EntryPosition: {x: 50, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: 739765154721912177}
+  m_DefaultState: {fileID: -4701273469854625010}
 --- !u!1107 &-1320024943745068821
 AnimatorStateMachine:
   serializedVersion: 6
@@ -32,8 +58,8 @@ AnimatorStateMachine:
   m_Name: New Layer
   m_ChildStates:
   - serializedVersion: 1
-    m_State: {fileID: 7922520230659183085}
-    m_Position: {x: 290, y: 120, z: 0}
+    m_State: {fileID: 5632922057685109949}
+    m_Position: {x: 280, y: 120, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -43,7 +69,7 @@ AnimatorStateMachine:
   m_EntryPosition: {x: 50, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: 7922520230659183085}
+  m_DefaultState: {fileID: 5632922057685109949}
 --- !u!91 &9100000
 AnimatorController:
   m_ObjectHideFlags: 0
@@ -100,8 +126,8 @@ AnimatorStateMachine:
   m_Name: Base Layer
   m_ChildStates:
   - serializedVersion: 1
-    m_State: {fileID: 5799669577669900230}
-    m_Position: {x: 280, y: 130, z: 0}
+    m_State: {fileID: 808124070711146715}
+    m_Position: {x: 260, y: 110, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -111,15 +137,15 @@ AnimatorStateMachine:
   m_EntryPosition: {x: 50, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: 5799669577669900230}
---- !u!1102 &739765154721912177
+  m_DefaultState: {fileID: 808124070711146715}
+--- !u!1102 &808124070711146715
 AnimatorState:
   serializedVersion: 6
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: lower_circle|lower_circleAction
+  m_Name: upper circle|upper circleAction 0
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -132,20 +158,20 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 2757743136572749884, guid: 3efcddb65335f664faa914e9a3fd2972, type: 3}
+  m_Motion: {fileID: -3929954063570756202, guid: 28c9c2ebeb099ae40ae6266b04efe292, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!1102 &5799669577669900230
+--- !u!1102 &5632922057685109949
 AnimatorState:
   serializedVersion: 6
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: upper circle|upper circleAction
+  m_Name: middle_circle|middle_circleAction 0
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -158,33 +184,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -3929954063570756202, guid: 3efcddb65335f664faa914e9a3fd2972, type: 3}
-  m_Tag: 
-  m_SpeedParameter: 
-  m_MirrorParameter: 
-  m_CycleOffsetParameter: 
-  m_TimeParameter: 
---- !u!1102 &7922520230659183085
-AnimatorState:
-  serializedVersion: 6
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: middle_circle|middle_circleAction
-  m_Speed: 1
-  m_CycleOffset: 0
-  m_Transitions: []
-  m_StateMachineBehaviours: []
-  m_Position: {x: 50, y: 50, z: 0}
-  m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
-  m_Mirror: 0
-  m_SpeedParameterActive: 0
-  m_MirrorParameterActive: 0
-  m_CycleOffsetParameterActive: 0
-  m_TimeParameterActive: 0
-  m_Motion: {fileID: -4867121688769042533, guid: 3efcddb65335f664faa914e9a3fd2972, type: 3}
+  m_Motion: {fileID: -4867121688769042533, guid: 28c9c2ebeb099ae40ae6266b04efe292, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

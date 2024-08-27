@@ -77,7 +77,8 @@ public class RockObstacle : Obstacle
         {
             spawner.DespawnRock();
         }
-
+        
+        body.SetActive(false);
         StartCoroutine(PlayAudioAndDestroy());
     }
     

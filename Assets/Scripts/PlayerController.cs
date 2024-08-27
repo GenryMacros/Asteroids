@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     
     private Vector2 _velocity = Vector2.zero;
     private Vector2 _lastMovingDirection = Vector2.zero;
+    private Vector2 _lastInput;
     private float _rotationY;
     private float _tilInvincibilityEnd = 0.0f;
     private float _tilNextFire = 0.0f;
@@ -50,6 +51,7 @@ public class PlayerController : MonoBehaviour
     
     private bool isWrappingX = false;
     private bool isWrappingZ = false;
+    private bool _isMoving = false;
     
     private void Awake()
     {
@@ -140,7 +142,30 @@ public class PlayerController : MonoBehaviour
         
         #region Movement
 
-        if (moveInput.y != 0)
+        if (_isMoving)
+        {
+            MoveJoystic(_lastInput);
+        }
+        Move(moveInput);
+        #endregion
+        
+        #region Cooldown
+
+        if (_tilNextFire < fireCooldown)
+        {
+            _tilNextFire += Time.deltaTime;
+        }
+
+        if (shootInput == 1.0f)
+        {
+            Fire();
+        }
+        #endregion
+    }
+
+    public void Move(Vector2 input)
+    {
+        if (input.y != 0)
         {
             StartEngine();
             double rotationY = (transform.rotation.eulerAngles.y * Math.PI) / 180;
@@ -157,7 +182,7 @@ public class PlayerController : MonoBehaviour
                 _velocity += velocityChange;
             }
         }
-        else
+        else if (!_isMoving)
         {
             StopEngine();
             Vector2 velocityBeforeStopping = _velocity;
@@ -178,31 +203,49 @@ public class PlayerController : MonoBehaviour
                 _lastMovingDirection = Vector2.zero;
             }
         }
-        _rotationY = moveInput.x;
-        #endregion
-        
-        #region Cooldown
-
-        if (_tilNextFire < fireCooldown)
-        {
-            _tilNextFire += Time.deltaTime;
-        }
-
-        if (shootInput == 1.0f && _tilNextFire >= fireCooldown)
-        {
-            Fire();
-            _tilNextFire = 0;
-        }
-        #endregion
+        _rotationY = input.x;
     }
 
+    public void MoveJoystic(Vector2 input)
+    {
+        StartEngine();
+        _lastInput = input;
+        float angleA = Mathf.Atan2(input.x, input.y) * Mathf.Rad2Deg - 90;
+        transform.rotation = Quaternion.Euler(0f, angleA, 0f);
+        double rotationY = (transform.rotation.eulerAngles.y * Math.PI) / 180;
+        _isMoving = true;
+        
+        Vector2 rotationDir = new Vector2(
+            (float)Math.Cos(rotationY),
+            -(float)Math.Sin(rotationY));
+        
+        _lastMovingDirection = (_lastMovingDirection + rotationDir).normalized;
+
+        Vector2 velocityChange = Time.deltaTime * accelerationIncreaseRate * _lastMovingDirection;
+        if ((_velocity + velocityChange).magnitude < maxSpeed)
+        {
+            _velocity += velocityChange;
+        }
+        
+    }
+
+    public void MoveJoysticStop()
+    {
+        _isMoving = false;
+    }
+    
     private void Flicker()
     {
         body.SetActive(!body.activeSelf);
     }
     
-    private void Fire()
+    public void Fire()
     {
+        if (_tilNextFire < fireCooldown)
+        {
+            return;
+        }
+        _tilNextFire = 0;
         BulletObstacle newBullet = Instantiate(bulletPrefab, transform.parent);
         newBullet.transform.position = bulletSpawnPoint.transform.position;
         

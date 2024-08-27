@@ -17,6 +17,7 @@ public enum SizeType
 public class Obstacle : MonoBehaviour
 {
     public float speed = 0;
+    public GameObject body;
     
     protected SizeType _sizeType = SizeType.Medium;
     protected Vector2 _velocity;

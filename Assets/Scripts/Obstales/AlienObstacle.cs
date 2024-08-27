@@ -89,6 +89,10 @@ public class AlienObstacle : Obstacle
     
     private void Fire()
     {
+        if (isDead)
+        {
+            return;
+        }
         BulletObstacle newBullet = Instantiate(bulletPrefab, transform.parent);
 
         float randomRotation = Random.Range(0, 360);
@@ -119,6 +123,7 @@ public class AlienObstacle : Obstacle
         {
             spawner.DespawnAlien();
             isDead = true;
+            body.SetActive(false);
             StartCoroutine(PlayAudioAndDestroy());
         } else if (other.gameObject.CompareTag("player") && 
                    !other.gameObject.GetComponent<PlayerController>().IsDead() &&
@@ -127,6 +132,7 @@ public class AlienObstacle : Obstacle
             spawner.DespawnAlien();
             other.gameObject.GetComponent<PlayerController>().Die();
             isDead = true;
+            body.SetActive(false);
             StartCoroutine(PlayAudioAndDestroy());
         }
         else if (other.gameObject.CompareTag("bullet"))
@@ -136,6 +142,7 @@ public class AlienObstacle : Obstacle
                 spawner.DespawnAlien();
                 UiManager.instance.IncreaseScore(UiManager.instance.scoreAlienWorth);
                 isDead = true;
+                body.SetActive(false);
                 StartCoroutine(PlayAudioAndDestroy());
             }
         }
